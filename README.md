@@ -1,14 +1,17 @@
 # PortWay SI
 
-PortWay SI is a Vietnamese-first strategic research workspace prototype.
+PortWay SI is a Vietnamese-first maritime and strategic intelligence workspace. Its flagship research focus is the connected maritime economy around the Gulf of Gành Rái: Cái Mép–Thị Vải/Cái Mép Hạ, Long Sơn–Phú Mỹ, Cần Giờ, and relevant links to Vũng Tàu and the hinterland. Gành Rái is an independent analytical lens, not an approved regional governance plan.
 
 ## Current features
 - Pi Browser SDK initialization in sandbox mode and Pi username authentication.
 - Structured research intake and a copyable analysis worksheet.
 - Explicit evidence discipline: verified / under review / inference / rumor.
-- Research domains: geopolitics, finance, AI, blockchain/RWA, digital identity, logistics.
+- Regional research focus: Cái Mép–Thị Vải/Cái Mép Hạ, Long Sơn–Phú Mỹ, Cần Giờ, Vũng Tàu and hinterland connectivity.
+- Cross-sector intelligence: ports, shipping, cargo flows, industrial/energy assets, logistics, infrastructure, investment/legal status, blue economy, digital trade and scenario analysis.
+- Evidence discipline: distinguish proposal, planning, approval, financing, construction and commercial operation; distinguish design capacity from actual throughput.
 
 ## Current limitations
+- The regional dossiers and intelligence modules are starter research frameworks, not verified live datasets.
 - No live news feed, AI model, backend, database, or automatic fact-checking is connected yet.
 - The analysis worksheet is a template, not an AI-generated factual conclusion.
 - No investment advice or guaranteed predictions.
