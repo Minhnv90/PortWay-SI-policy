@@ -4,8 +4,9 @@ compatibility_date = "2026-11-21"
 
 [vars]
 ALLOWED_ORIGINS = "https://minhnv90.github.io,https://portwaysix5564.pinet.com"
-AI_CHAT_COMPLETIONS_URL = "https://api.cloudflare.com/client/v4/accounts/00489a599d57f2e38edb9dad507ec91f/ai/v1/chat/completions"
-AI_MODEL = "@cf/meta/llama-3.1-8b-instruct"
+AI_MODEL = "@cf/google/gemma-4-26b-a4b-it"
 
-# AI_API_KEY must be configured as a Cloudflare Worker secret, never committed.
 # After creating a D1 database, configure its binding separately.
+
+[ai]
+binding = "AI"
