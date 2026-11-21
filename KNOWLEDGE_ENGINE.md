@@ -1,0 +1,101 @@
+# PortWay SI Knowledge Engine (D1 MVP)
+
+This repository now includes an independent Cloudflare D1 schema and Worker endpoints for PortWay's Gành Rái maritime/economic intelligence records. This is a keyword-search MVP, not a vector database, live web crawler, or automatic fact-checker.
+
+## Data boundary
+- Use a dedicated D1 database for PortWay SI only.
+- Do not connect to or query Health SI databases, embeddings, user journals, or private health records.
+- Only approved research records are retrieved by the AI.
+- User-submitted evidence remains unverified until reviewed.
+- Keep source provenance, status, counter-evidence, unknowns and last-checked date with each record.
+
+## Create and migrate the database
+From this repository directory:
+
+```bash
+npx wrangler d1 create portway-si-knowledge
+```
+Copy the returned database_id into the D1 binding in `wrangler.toml` (uncomment the example binding and replace the placeholder). Apply the schema:
+
+```bash
+npx wrangler d1 execute portway-si-knowledge --remote --file=./migrations/0001_knowledge.sql
+```
+
+Add this binding to `wrangler.toml`:
+
+```toml
+[[d1_databases]]
+binding = "KNOWLEDGE_DB"
+database_name = "portway-si-knowledge"
+database_id = "YOUR_D1_DATABASE_ID"
+```
+
+## Configure admin ingestion
+Generate a long random secret and set it without committing it:
+
+```bash
+npx wrangler secret put KNOWLEDGE_ADMIN_TOKEN
+```
+
+Deploy after binding D1 and setting the secret:
+
+```bash
+npx wrangler deploy
+```
+
+## API
+
+### Admin upsert
+`POST /api/admin/knowledge/upsert`
+Header: `Authorization: Bearer YOUR_ADMIN_TOKEN`
+
+Example body:
+
+```json
+{
+  "record": {
+    "id": "cai-mep-terminal-example-001",
+    "title": "Example terminal or project record",
+    "category": "port_terminal",
+    "geography": "Cai Mep-Thi Vai",
+    "entities": "Example legal entity; terminal operator",
+    "claim": "A narrowly defined claim that can be checked.",
+    "summary": "Short summary with clear scope.",
+    "body": "Detailed notes that distinguish sourced facts from analysis.",
+    "source_title": "Original document title",
+    "source_organization": "Issuing authority or company",
+    "source_url": "https://example.org/primary-document",
+    "source_type": "primary_official",
+    "published_at": "2026-01-01",
+    "effective_at": "",
+    "retrieved_at": "2026-01-02",
+    "last_checked_at": "2026-01-02",
+    "legal_status": "unknown",
+    "project_stage": "unknown",
+    "designed_capacity": "",
+    "actual_throughput": "",
+    "evidence_status": "unknown",
+    "confidence_rationale": "Not yet reviewed.",
+    "counter_evidence": "",
+    "unknowns": "Confirm primary source and legal status.",
+    "reviewer": "",
+    "approval_status": "needs_review",
+    "review_due_at": "2026-04-01",
+    "tags": "cai-mep,port"
+  }
+}
+```
+The example is a schema template only, not a factual assertion about an actual project. Set `approved` only after a reviewer validates source, geography, legal stage, units, dates, and counter-evidence.
+
+### Search approved records
+`POST /api/knowledge/search`
+Body: `{"query":"Cai Mep throughput"}`
+Only `approval_status=approved` records are returned.
+
+The AI research endpoint automatically retrieves up to six matching approved records and returns source metadata in `knowledge_sources`. The Worker does not crawl websites or independently validate user-provided links.
+
+## Current limitations
+- D1 keyword matching is a starter retrieval method, not semantic/vector search.
+- No public admin dashboard, bulk importer, source crawler, reviewer workflow UI, or scheduled freshness monitor exists yet.
+- No record is trustworthy merely because it is stored. Keep the evidence status and review date visible.
+- Add rate limiting, admin audit logs, role-based review, source snapshotting and change history before public production.
