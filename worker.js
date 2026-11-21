@@ -18,12 +18,12 @@ const APPROVAL_STATES = ["draft","needs_review","approved","archived"];
 const safeText = (value, max = 12000) => String(value ?? "").trim().slice(0, max);
 async function searchKnowledge(env, question, limit = 5) {
   if (!env.KNOWLEDGE_DB) return [];
-  const terms = [...new Set((question.toLowerCase().match(/[\\p{L}\\p{N}]{3,}/gu) || []).slice(0, 8))];
+  const terms = [...new Set((question.toLowerCase().match(/[\p{L}\p{N}]{3,}/gu) || []).slice(0, 8))];
   if (!terms.length) return [];
-  const clauses = terms.map(() => "(title LIKE ? OR summary LIKE ? OR body LIKE ? OR tags LIKE ?)");
+  const clauses = terms.map(() => "(title LIKE ? OR category LIKE ? OR geography LIKE ? OR entities LIKE ? OR claim LIKE ? OR summary LIKE ? OR body LIKE ? OR tags LIKE ?)");
   const sql = "SELECT * FROM " + KNOWLEDGE_TABLE + " WHERE approval_status = 'approved' AND (" + clauses.join(" OR ") + ") ORDER BY modified_at DESC LIMIT ?";
   const binds = [];
-  for (const term of terms) { const p = "%" + term + "%"; binds.push(p,p,p,p); }
+  for (const term of terms) { const p = "%" + term + "%"; binds.push(p,p,p,p,p,p,p,p); }
   binds.push(Math.max(1, Math.min(8, limit)));
   const result = await env.KNOWLEDGE_DB.prepare(sql).bind(...binds).all();
   return result.results || [];
