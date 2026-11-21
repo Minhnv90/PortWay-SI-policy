@@ -3,13 +3,9 @@ main = "worker.js"
 compatibility_date = "2026-11-21"
 
 [vars]
-# Comma-separated exact origins allowed to call this API.
-ALLOWED_ORIGINS = "https://minhnv90.github.io"
-# Set these as secrets/environment variables in Cloudflare, never commit API keys:
-# AI_CHAT_COMPLETIONS_URL, AI_MODEL, AI_API_KEY
+ALLOWED_ORIGINS = "https://minhnv90.github.io,https://portwaysix5564.pinet.com"
+AI_CHAT_COMPLETIONS_URL = "https://api.cloudflare.com/client/v4/accounts/00489a599d57f2e38edb9dad507ec91f/ai/v1/chat/completions"
+AI_MODEL = "@cf/meta/llama-3.1-8b-instruct"
 
-# After creating the dedicated D1 database, uncomment and fill in the binding below.
-# [[d1_databases]]
-# binding = "KNOWLEDGE_DB"
-# database_name = "portway-si-knowledge"
-# database_id = "YOUR_D1_DATABASE_ID"
+# AI_API_KEY must be configured as a Cloudflare Worker secret, never committed.
+# After creating a D1 database, configure its binding separately.
