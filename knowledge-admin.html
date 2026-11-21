@@ -1,0 +1,52 @@
+<!doctype html><html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>PortWay SI · Knowledge Admin</title><style>
+:root{color-scheme:light;font-family:Inter,system-ui,-apple-system,sans-serif;background:#f4f7fb;color:#172033}
+*{box-sizing:border-box}body{margin:0;padding:24px;max-width:980px;margin:auto}h1{font-size:26px;margin:0 0 8px}p{line-height:1.55;color:#526078}.card{background:#fff;border:1px solid #dfe6ef;border-radius:16px;padding:20px;margin:16px 0;box-shadow:0 4px 18px #15233b0a}.field{display:grid;gap:7px;margin:12px 0}label{font-size:13px;font-weight:650}input,textarea,select{width:100%;border:1px solid #cbd5e1;border-radius:9px;padding:11px;font:inherit;background:#fff;color:#172033}textarea{min-height:230px;font-family:ui-monospace,monospace;font-size:13px}button{border:0;border-radius:9px;padding:11px 15px;background:#175cd3;color:white;font-weight:650;cursor:pointer}button.secondary{background:#e9eef6;color:#172033}.row{display:flex;gap:10px;flex-wrap:wrap}.status{white-space:pre-wrap;font-size:13px;color:#34435b;margin-top:10px}.warning{background:#fff7e6;border:1px solid #f3d69a;border-radius:10px;padding:12px;color:#744d00;font-size:13px}.record{border-top:1px solid #e4e9f0;padding:12px 0}.record a{overflow-wrap:anywhere}.muted{font-size:12px;color:#64748b}
+</style></head><body>
+<h1>PortWay SI · Knowledge Admin</h1><p>Công cụ nội bộ để nhập, kiểm tra và duyệt tài liệu trong kho tri thức riêng. Trang này không phải trang quản trị có tài khoản; quyền ghi được kiểm soát bằng admin token ở Worker.</p>
+<div class="warning"><b>Bảo mật:</b> Chỉ mở trang này trên thiết bị tin cậy. Không gửi admin token cho người khác, không lưu token vào trình duyệt hoặc chia sẻ ảnh màn hình. Token chỉ được giữ trong bộ nhớ trang hiện tại và mất khi tải lại/đóng trang. Chỉ duyệt tài liệu sau khi kiểm tra nguồn gốc và nội dung.</div>
+<section class="card"><h2>1. Kết nối Worker</h2><div class="field"><label for="api">Địa chỉ Worker HTTPS</label><input id="api" type="url" placeholder="https://portway-si-api.<tld>.workers.dev"></div><div class="field"><label for="token">Admin token (chỉ dùng trong phiên này)</label><input id="token" type="password" autocomplete="off" placeholder="Dán token đã tạo bằng wrangler secret put KNOWLEDGE_ADMIN_TOKEN"></div><div class="row"><button id="test">Kiểm tra kết nối</button><button class="secondary" id="forget">Xóa token khỏi trang</button></div><div id="conn" class="status"></div></section>
+<section class="card"><h2>2. Nhập hoặc cập nhật một tài liệu</h2><p class="muted">Dùng JSON theo đúng trường của kho portway_knowledge. ID cố định để cập nhật cùng hồ sơ, thay vì tạo bản sao mới.</p><div class="field"><label for="record">Nội dung tài liệu dạng JSON</label><textarea id="record" spellcheck="false"></textarea></div><div class="row"><button id="save">Lưu tài liệu</button><button class="secondary" id="sample">Nạp mẫu trống</button><button class="secondary" id="format">Định dạng JSON</button></div><div id="saveStatus" class="status"></div></section>
+<section class="card"><h2>3. Tìm kiếm tài liệu đã duyệt</h2><div class="field"><label for="query">Từ khóa</label><input id="query" placeholder="Nhập chủ đề hoặc từ khóa"></div><button id="search">Tìm trong kho tri thức</button><div id="results" class="status"></div></section>
+<p class="muted">API chỉ trả về tài liệu có approval_status = approved cho tìm kiếm AI. Tài liệu mới nên ở trạng thái needs_review. Chỉ dùng approved khi người có trách nhiệm đã rà soát.</p>
+<script>
+const FIELDS=["id","title","category","geography","entities","claim","summary","body","source_title","source_organization","source_url","source_type","published_at","effective_at","retrieved_at","last_checked_at","legal_status","project_stage","designed_capacity","actual_throughput","evidence_status","confidence_rationale","counter_evidence","unknowns","reviewer","approval_status","review_due_at","tags"];const SAMPLE={
+  "id": "port-record-001",
+  "title": "Tên hồ sơ/dự án",
+  "category": "port_terminal",
+  "geography": "Cái Mép–Thị Vải",
+  "entities": "",
+  "claim": "Một tuyên bố cụ thể có thể kiểm chứng.",
+  "summary": "Tóm tắt ngắn, giữ đúng phạm vi nguồn.",
+  "body": "Ghi chú chi tiết, tách dữ kiện khỏi phân tích.",
+  "source_title": "Tên văn bản/tài liệu gốc",
+  "source_organization": "Cơ quan ban hành/chủ thể công bố",
+  "source_url": "https://example.org/document",
+  "source_type": "primary_official",
+  "published_at": "",
+  "effective_at": "",
+  "retrieved_at": "",
+  "last_checked_at": "",
+  "legal_status": "unknown",
+  "project_stage": "unknown",
+  "designed_capacity": "",
+  "actual_throughput": "",
+  "evidence_status": "unknown",
+  "confidence_rationale": "Chưa thẩm định.",
+  "counter_evidence": "",
+  "unknowns": "Cần kiểm tra tài liệu gốc.",
+  "reviewer": "",
+  "approval_status": "needs_review",
+  "review_due_at": "",
+  "tags": "cai-mep,port"
+};const $=id=>document.getElementById(id);let adminToken="";
+$("record").value=JSON.stringify(SAMPLE,null,2);
+function base(){const v=$("api").value.trim().replace(/\/$/,"");if(!/^https:\/\//i.test(v))throw Error("Nhập địa chỉ Worker HTTPS hợp lệ.");return v}
+function status(id,msg){$(id).textContent=msg}
+$("test").onclick=async()=>{try{const u=base();const r=await fetch(u+"/api/knowledge/search",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({query:"test"})});const d=await r.json();if(r.status===503)throw Error("Worker truy cập được nhưng D1 chưa được cấu hình.");if(!r.ok)throw Error(d.error||"HTTP "+r.status);status("conn","Kết nối thành công. D1 hoạt động; tìm thấy "+d.count+" bản ghi phù hợp.")}catch(e){status("conn","Kiểm tra thất bại: "+e.message)}};
+$("forget").onclick=()=>{$("token").value="";adminToken="";status("conn","Đã xóa token khỏi bộ nhớ trang.")};
+$("sample").onclick=()=>{$("record").value=JSON.stringify(SAMPLE,null,2);status("saveStatus","Đã nạp mẫu. Thay bằng dữ liệu đã kiểm chứng trước khi lưu.")};
+$("format").onclick=()=>{try{$("record").value=JSON.stringify(JSON.parse($("record").value),null,2);status("saveStatus","JSON hợp lệ.")}catch(e){status("saveStatus","JSON lỗi: "+e.message)}};
+$("save").onclick=async()=>{try{const u=base();adminToken=$("token").value.trim();if(!adminToken)throw Error("Nhập admin token.");const record=JSON.parse($("record").value);for(const k of ["id","title","body"])if(!String(record[k]||"").trim())throw Error("Thiếu trường bắt buộc: "+k);for(const k of Object.keys(record))if(!FIELDS.includes(k))throw Error("Trường không hợp lệ: "+k);if(record.approval_status==="approved"&&!confirm("Bạn đã xác minh nguồn, ngày tháng, phạm vi và nội dung? Chỉ bấm OK nếu tài liệu đã được duyệt."))return;const r=await fetch(u+"/api/admin/knowledge/upsert",{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+adminToken},body:JSON.stringify({record})});const d=await r.json();if(!r.ok)throw Error(d.error||"HTTP "+r.status);status("saveStatus","Đã lưu "+d.id+" · trạng thái: "+d.approval_status)}catch(e){status("saveStatus","Không lưu được: "+e.message)}};
+$("search").onclick=async()=>{try{const u=base(),q=$("query").value.trim();if(!q)throw Error("Nhập từ khóa.");const r=await fetch(u+"/api/knowledge/search",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({query:q})});const d=await r.json();if(!r.ok)throw Error(d.error||"HTTP "+r.status);$("results").textContent="Tìm thấy "+d.count+" bản ghi đã duyệt.\n"+d.records.map(x=>"• "+x.title+" | "+(x.source_organization||"")+"
+"+(x.source_url||"")).join("\n\n")}catch(e){status("results","Lỗi: "+e.message)}};
+</script></body></html>
