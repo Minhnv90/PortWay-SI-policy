@@ -68,10 +68,13 @@ async function handleKnowledge(request, env, headers, url) {
 
 export default {
   async fetch(request, env) {
+    const url = new URL(request.url);
+    if (request.method === "GET" && (url.pathname === "/" || url.pathname === "/api/status")) {
+      return Response.json({ service: "PortWay SI", status: "online", ai_configured: Boolean(env.AI_CHAT_COMPLETIONS_URL && env.AI_MODEL && env.AI_API_KEY), missing_config: ["AI_CHAT_COMPLETIONS_URL", "AI_MODEL", "AI_API_KEY"].filter(key => !env[key]), note: "Status only; AI response is not tested." }, { headers: { "Cache-Control": "no-store", "Access-Control-Allow-Origin": "*" } });
+    }
     const headers = cors(request, env);
     if (!headers) return new Response("Origin not allowed", { status: 403 });
     if (request.method === "OPTIONS") return new Response(null, { status: 204, headers });
-    const url = new URL(request.url);
     const knowledgeResponse = await handleKnowledge(request, env, headers, url);
     if (knowledgeResponse) return knowledgeResponse;
     if (url.pathname === "/api/pi/verify" && request.method === "POST") {
