@@ -1,0 +1,35 @@
+CREATE TABLE IF NOT EXISTS portway_knowledge (
+  id TEXT PRIMARY KEY,
+  title TEXT NOT NULL,
+  category TEXT NOT NULL DEFAULT '',
+  geography TEXT NOT NULL DEFAULT '',
+  entities TEXT NOT NULL DEFAULT '',
+  claim TEXT NOT NULL DEFAULT '',
+  summary TEXT NOT NULL DEFAULT '',
+  body TEXT NOT NULL,
+  source_title TEXT NOT NULL DEFAULT '',
+  source_organization TEXT NOT NULL DEFAULT '',
+  source_url TEXT NOT NULL DEFAULT '',
+  source_type TEXT NOT NULL DEFAULT '',
+  published_at TEXT NOT NULL DEFAULT '',
+  effective_at TEXT NOT NULL DEFAULT '',
+  retrieved_at TEXT NOT NULL DEFAULT '',
+  last_checked_at TEXT NOT NULL DEFAULT '',
+  legal_status TEXT NOT NULL DEFAULT '',
+  project_stage TEXT NOT NULL DEFAULT '',
+  designed_capacity TEXT NOT NULL DEFAULT '',
+  actual_throughput TEXT NOT NULL DEFAULT '',
+  evidence_status TEXT NOT NULL DEFAULT 'unknown',
+  confidence_rationale TEXT NOT NULL DEFAULT '',
+  counter_evidence TEXT NOT NULL DEFAULT '',
+  unknowns TEXT NOT NULL DEFAULT '',
+  reviewer TEXT NOT NULL DEFAULT '',
+  approval_status TEXT NOT NULL DEFAULT 'draft',
+  review_due_at TEXT NOT NULL DEFAULT '',
+  tags TEXT NOT NULL DEFAULT '',
+  created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  modified_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS idx_portway_knowledge_status ON portway_knowledge(approval_status);
+CREATE INDEX IF NOT EXISTS idx_portway_knowledge_geo ON portway_knowledge(geography);
+CREATE INDEX IF NOT EXISTS idx_portway_knowledge_evidence ON portway_knowledge(evidence_status);
