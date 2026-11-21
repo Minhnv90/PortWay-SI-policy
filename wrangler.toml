@@ -7,3 +7,9 @@ compatibility_date = "2026-11-21"
 ALLOWED_ORIGINS = "https://minhnv90.github.io"
 # Set these as secrets/environment variables in Cloudflare, never commit API keys:
 # AI_CHAT_COMPLETIONS_URL, AI_MODEL, AI_API_KEY
+
+# After creating the dedicated D1 database, uncomment and fill in the binding below.
+# [[d1_databases]]
+# binding = "KNOWLEDGE_DB"
+# database_name = "portway-si-knowledge"
+# database_id = "YOUR_D1_DATABASE_ID"
