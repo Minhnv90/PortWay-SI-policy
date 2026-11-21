@@ -1,0 +1,9 @@
+name = "portway-si-api"
+main = "worker.js"
+compatibility_date = "2026-11-21"
+
+[vars]
+# Comma-separated exact origins allowed to call this API.
+ALLOWED_ORIGINS = "https://REPLACE-WITH-YOUR-PORTWAY-SI-PAGES-DOMAIN"
+# Set these as secrets/environment variables in Cloudflare, never commit API keys:
+# AI_CHAT_COMPLETIONS_URL, AI_MODEL, AI_API_KEY
