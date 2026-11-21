@@ -27,3 +27,21 @@ Open `index.html` in a browser, or serve this folder with any static HTTP server
 - Sandbox mode is enabled for initial testing.
 - Register and verify the production domain in the Pi Developer Portal before switching out of sandbox.
 - Never put API keys or secrets in browser JavaScript. AI and external data integrations require a secure backend.
+
+
+## AI API backend (Cloudflare Workers)
+
+The isolated API worker is in `worker.js`; configuration is in `wrangler.toml`.
+It exposes `POST /api/research-assist`. It accepts a research question and up to eight user-supplied evidence snippets. It does not crawl the web, authenticate sources, or persist requests.
+
+### Deploy
+1. Install Node.js LTS and run `npm install -g wrangler`.
+2. Run `npx wrangler login` from this repository folder.
+3. Replace the placeholder origin in `wrangler.toml` with the exact deployed PortWay SI Pages origin.
+4. Set secrets (use your chosen OpenAI-compatible chat-completions endpoint and model):
+   - `npx wrangler secret put AI_CHAT_COMPLETIONS_URL`
+   - `npx wrangler secret put AI_API_KEY`
+   - `npx wrangler secret put AI_MODEL`
+5. Deploy with `npx wrangler deploy`.
+
+The frontend prototype is not yet wired to this API. After deployment, configure the frontend to call your Worker URL. Do not put provider keys in frontend code or GitHub.
