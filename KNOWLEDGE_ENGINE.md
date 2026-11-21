@@ -99,3 +99,20 @@ The AI research endpoint automatically retrieves up to six matching approved rec
 - No public admin dashboard, bulk importer, source crawler, reviewer workflow UI, or scheduled freshness monitor exists yet.
 - No record is trustworthy merely because it is stored. Keep the evidence status and review date visible.
 - Add rate limiting, admin audit logs, role-based review, source snapshotting and change history before public production.
+
+
+## Admin page and AI provider secrets
+
+After GitHub Pages publishes this repository, open the private-session admin page: https://minhnv90.github.io/PortWay-SI-policy/knowledge-admin.html
+
+To activate the AI answer endpoint, set the provider details as Worker secrets (not in GitHub or the browser):
+
+```bash
+npx wrangler secret put AI_CHAT_COMPLETIONS_URL
+npx wrangler secret put AI_API_KEY
+npx wrangler secret put AI_MODEL
+```
+
+Enter the provider's HTTPS chat-completions endpoint, API key, and exact model identifier when Wrangler prompts. Do this only after the Worker is deployed/linked to the correct Cloudflare account and before testing AI questions. Use a provider account and model you control. The API key is never needed by the frontend or admin page.
+
+The admin page URL above is publicly reachable as a static page; the write API still requires the secret admin token. Keep that token private and use the page only on a trusted device.
