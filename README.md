@@ -45,3 +45,8 @@ It exposes `POST /api/research-assist`. It accepts a research question and up to
 5. Deploy with `npx wrangler deploy`.
 
 The frontend prototype is not yet wired to this API. After deployment, configure the frontend to call your Worker URL. Do not put provider keys in frontend code or GitHub.
+
+
+## Pi identity verification
+
+The Pi login button sends the Pi SDK access token to this app's Worker at `POST /api/pi/verify`. The Worker validates it with the official Pi Platform API `GET https://api.minepi.com/v2/me` and returns only the verified Pioneer UID and username. The access token is not saved in browser localStorage. Enter the deployed Worker URL in this app's API URL field before signing in. The same verified Pi UID can identify the same Pioneer across Health SI and PortWay SI. At this stage the apps verify identity independently; a persistent shared member database/session, reward ledger, and Pi payment/payout flows still need to be built and configured.
