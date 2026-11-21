@@ -5,7 +5,7 @@ const cors = (request, env) => {
   return {
     "Access-Control-Allow-Origin": origin,
     "Access-Control-Allow-Methods": "POST, OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type",
+    "Access-Control-Allow-Headers": "Content-Type, Authorization",
     "Access-Control-Max-Age": "86400",
     "Vary": "Origin"
   };
@@ -17,6 +17,18 @@ export default {
     if (!headers) return new Response("Origin not allowed", { status: 403 });
     if (request.method === "OPTIONS") return new Response(null, { status: 204, headers });
     const url = new URL(request.url);
+    if (url.pathname === "/api/pi/verify" && request.method === "POST") {
+      const authorization = request.headers.get("Authorization") || "";
+      if (!authorization.startsWith("Bearer ") || authorization.length < 20) return Response.json({ error: "Pi access token is required." }, { status: 401, headers });
+      try {
+        const piResponse = await fetch("https://api.minepi.com/v2/me", { headers: { "Authorization": authorization, "Accept": "application/json" } });
+        if (!piResponse.ok) return Response.json({ error: "Pi authentication could not be verified." }, { status: 401, headers });
+        const payload = await piResponse.json();
+        const user = payload?.user || payload;
+        if (typeof user?.uid !== "string" || !user.uid) return Response.json({ error: "Pi returned an invalid identity response." }, { status: 502, headers });
+        return Response.json({ verified: true, user: { uid: user.uid, username: String(user.username || "") } }, { headers });
+      } catch { return Response.json({ error: "Could not reach Pi Platform API." }, { status: 502, headers }); }
+    }
     if (url.pathname !== "/api/research-assist" || request.method !== "POST") {
       return Response.json({ error: "Not found" }, { status: 404, headers });
     }
