@@ -1,4 +1,4 @@
-name = "portway-si-api"
+name = "portway-si-policy"
 main = "worker.js"
 compatibility_date = "2026-11-21"
 
