@@ -1,3 +1,11 @@
+const tokenUsage = (usage) => {
+  if (!usage || typeof usage !== "object") return null;
+  const counts = Object.fromEntries(["prompt_tokens", "completion_tokens", "total_tokens"].flatMap(key =>
+    Number.isSafeInteger(usage[key]) && usage[key] >= 0 ? [[key, usage[key]]] : []
+  ));
+  return Object.keys(counts).length ? counts : null;
+};
+
 const cors = (request, env) => {
   const origin = request.headers.get("Origin") || "";
   const allowed = (env.ALLOWED_ORIGINS || "").split(",").map(x => x.trim()).filter(Boolean);
@@ -70,7 +78,7 @@ export default {
   async fetch(request, env) {
     const url = new URL(request.url);
     if (request.method === "GET" && (url.pathname === "/" || url.pathname === "/api/status")) {
-      return Response.json({ service: "PortWay SI", status: "online", release: "business-research-v2", ai_configured: Boolean(typeof env.AI?.run === "function" && env.AI_MODEL), missing_config: [typeof env.AI?.run === "function" ? null : "AI", env.AI_MODEL ? null : "AI_MODEL"].filter(Boolean), note: "Status only; AI response is not tested." }, { headers: { "Cache-Control": "no-store", "Access-Control-Allow-Origin": "*" } });
+      return Response.json({ service: "PortWay SI", status: "online", release: "business-research-usage-v1", ai_configured: Boolean(typeof env.AI?.run === "function" && env.AI_MODEL), missing_config: [typeof env.AI?.run === "function" ? null : "AI", env.AI_MODEL ? null : "AI_MODEL"].filter(Boolean), note: "Status only; AI response is not tested." }, { headers: { "Cache-Control": "no-store", "Access-Control-Allow-Origin": "*" } });
     }
     const headers = cors(request, env);
     if (!headers) return new Response("Origin not allowed", { status: 403 });
@@ -124,7 +132,7 @@ export default {
       });
       const answer = data?.choices?.[0]?.message?.content ?? data?.response;
       if (typeof answer !== "string" || !answer.trim()) return Response.json({ error: "Empty AI response." }, { status: 502, headers });
-      return Response.json({ answer: answer.trim(), evidence_count: evidence.length, knowledge_count: knowledge.length, knowledge_sources: knowledge.map(r => ({ title: r.title, geography: r.geography, evidence_status: r.evidence_status, organization: r.source_organization, url: r.source_url, last_checked_at: r.last_checked_at })) }, { headers });
+      return Response.json({ answer: answer.trim(), usage: tokenUsage(data?.usage), evidence_count: evidence.length, knowledge_count: knowledge.length, knowledge_sources: knowledge.map(r => ({ title: r.title, geography: r.geography, evidence_status: r.evidence_status, organization: r.source_organization, url: r.source_url, last_checked_at: r.last_checked_at })) }, { headers });
     } catch {
       return Response.json({ error: "Could not reach AI provider." }, { status: 502, headers });
     }
