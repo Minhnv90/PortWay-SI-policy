@@ -185,6 +185,92 @@ const localPortWayKnowledge = [
         "khai bao hai quan"
       ]
     ]
+  },
+  {
+    "id": "wco-hs",
+    "title": "Cấu trúc mã HS và phân loại theo biểu thuế quốc gia",
+    "org": "Tổ chức Hải quan Thế giới (WCO)",
+    "url": "https://www.wcoomd.org/en/faq/harmonized_system_faq",
+    "checked": "2026-11-22",
+    "scope": "Kiến thức nền về HTS/HS quốc tế; không gán mã hoặc mức thuế cho mặt hàng cụ thể và không xác nhận xuất xứ.",
+    "note": "WCO giải thích phân nhóm HS chuẩn quốc tế ở cấp sáu chữ số. Một quốc gia có thể có phân nhóm chi tiết riêng trong biểu thuế quốc gia; phân loại cuối cùng phụ thuộc biểu thuế áp dụng của nước liên quan. Khi thiếu cấu tạo, công dụng và nước áp dụng, nêu cách kiểm tra thay vì đoán mã.",
+    "match": [
+      [
+        "he thong hs",
+        "harmonized system",
+        "ma hs la gi",
+        "hs code la gi",
+        "hs sau chu so",
+        "ma hs sau chu so",
+        "hs 6 chu so",
+        "ma hs 6 so",
+        "ma hs co may so",
+        "cau truc ma hs",
+        "phan loai hs",
+        "phan loai ma hs",
+        "hs code",
+        "hscode"
+      ]
+    ]
+  },
+  {
+    "id": "imo-ship-id",
+    "title": "Số IMO nhận diện tàu",
+    "org": "Tổ chức Hàng hải Quốc tế (IMO)",
+    "url": "https://www.imo.org/en/ourwork/iiis/pages/imo-identification-number-schemes.aspx",
+    "checked": "2026-11-22",
+    "scope": "Chuẩn nhận diện; không tra hồ sơ, vị trí, lịch chạy, cờ/chủ tàu hiện tại hoặc tình trạng khai thác.",
+    "note": "Số IMO của một con tàu được giữ xuyên suốt vòng đời kể cả khi đổi tên, cờ hoặc chủ sở hữu. Đây là khóa đối chiếu danh tính tàu trên giấy tờ, không phải bằng chứng vị trí, chuyến đi, lịch chạy, tên hiện tại hoặc chỗ tàu.",
+    "match": [
+      [
+        "so imo",
+        "imo number",
+        "ma imo",
+        "imo ship identification",
+        "dinh danh tau",
+        "nhan dien tau",
+        "ship identification number"
+      ]
+    ]
+  },
+  {
+    "id": "uncitral-mletr",
+    "title": "Luật mẫu về chứng từ điện tử có thể chuyển nhượng",
+    "org": "UNCITRAL",
+    "url": "https://uncitral.un.org/en/texts/ecommerce/modellaw/electronic_transferable_records",
+    "checked": "2026-11-22",
+    "scope": "Luật mẫu MLETR năm 2017, không khẳng định đã được áp dụng tại Việt Nam/UAE hoặc rằng một vận đơn cụ thể có hiệu lực.",
+    "note": "MLETR là khuôn mẫu pháp lý cho chứng từ chuyển nhượng dạng điện tử, trong đó có vận đơn. Mức tương đương chức năng đòi hỏi cách đáng tin cậy để nhận diện bản điện tử, duy trì khả năng kiểm soát và bảo đảm tính toàn vẹn. Một bản quét PDF không tự đáp ứng các điều kiện đó; cần kiểm tra luật áp dụng và các bên chấp nhận.",
+    "match": [
+      [
+        "mletr",
+        "uncitral",
+        "van don dien tu",
+        "electronic bill of lading",
+        "ebl",
+        "e bl",
+        "chung tu dien tu chuyen nhuong"
+      ]
+    ]
+  },
+  {
+    "id": "wb-lpi",
+    "title": "LPI 2.0: đọc chỉ số logistics đúng phạm vi",
+    "org": "Ngân hàng Thế giới",
+    "url": "https://lpi.worldbank.org/en/about/methodology",
+    "checked": "2026-11-22",
+    "scope": "Phương pháp đo hiệu suất logistics cấp quốc gia; không dự báo ETA, cước hoặc hiệu suất của chuyến/nhà vận chuyển cụ thể.",
+    "note": "LPI 2.0 tổng hợp nhiều chỉ số cấp quốc gia từ dữ liệu vận hành chuỗi cung ứng, trong đó phân biệt các khâu vận chuyển, trung chuyển và chờ. Khi so sánh, dùng đúng biến, kỳ và định nghĩa. Giá trị quốc gia không thay lịch hãng tàu hoặc báo giá cho một lô hàng.",
+    "match": [
+      [
+        "lpi",
+        "logistics performance indicators",
+        "chi so hieu suat logistics",
+        "chi so logistics ngan hang the gioi",
+        "world bank logistics",
+        "ngan hang the gioi logistics"
+      ]
+    ]
   }
 ];
 const normalizeKnowledgeQuery = text => " " + text.toLowerCase().normalize("NFD").replace(/\p{M}/gu, "").replace(/đ/g, "d").replace(/[^a-z0-9]+/g, " ").trim() + " ";
@@ -386,7 +472,7 @@ export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
     if (request.method === "GET" && (url.pathname === "/" || url.pathname === "/api/status")) {
-      return Response.json({ service: "PortWay SI", status: "online", release: "business-weather-knowledge-v2", ai_configured: Boolean(typeof env.AI?.run === "function" && env.AI_MODEL), missing_config: [typeof env.AI?.run === "function" ? null : "AI", env.AI_MODEL ? null : "AI_MODEL"].filter(Boolean), note: "Status only; AI response is not tested." }, { headers: { "Cache-Control": "no-store", "Access-Control-Allow-Origin": "*" } });
+      return Response.json({ service: "PortWay SI", status: "online", release: "business-weather-knowledge-v3", ai_configured: Boolean(typeof env.AI?.run === "function" && env.AI_MODEL), missing_config: [typeof env.AI?.run === "function" ? null : "AI", env.AI_MODEL ? null : "AI_MODEL"].filter(Boolean), note: "Status only; AI response is not tested." }, { headers: { "Cache-Control": "no-store", "Access-Control-Allow-Origin": "*" } });
     }
     const headers = cors(request, env);
     if (!headers) return new Response("Origin not allowed", { status: 403 });
