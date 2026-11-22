@@ -21,7 +21,14 @@
 <p><a href="https://vietcombank.com.vn/vi-VN/KHCN/Cong-cu-Tien-ich/Ty-gia" target="_blank" rel="noopener noreferrer">Tỷ giá bán USD của Vietcombank</a>: 25.980 VND/USD, lúc 23:00 ngày 21/11/2026 (giờ Việt Nam). Tỷ giá tham chiếu cố định, không cập nhật trực tiếp.</p>
 <table class="ai-fx-table"><caption>Bảng quy đổi tham khảo USD → VND</caption><thead><tr><th scope="col">Mức</th><th scope="col">USD</th><th scope="col">VND</th></tr></thead><tbody><tr><th scope="row">Lượt AI này</th><td id="researchAIFxUSD"></td><td id="researchAIFxVND"></td></tr><tr><th scope="row">Ví dụ</th><td>1</td><td>25.980</td></tr><tr><th scope="row">Ví dụ</th><td>10</td><td>259.800</td></tr></tbody></table>
 </div>
-</section>\n<section class="card" id="ganh-rai-command"><div class="eyebrow" style="color:var(--gold)">Regional Intelligence Program</div><h2 style="margin:4px 0">Gành Rái Maritime Economic Intelligence</h2><p class="muted">Trung tâm nghiên cứu liên kết cảng biển, công nghiệp, năng lượng, đô thị, logistics và kinh tế biển quanh Vịnh Gành Rái.</p><div class="notice">Đây là mô hình nghiên cứu độc lập của PortWay SI, không phải quy hoạch vùng hay cơ chế quản trị đã được phê duyệt. Mọi thông tin dự án phải ghi rõ nguồn và trạng thái pháp lý.</div><div class="hubnav"><a href="#ganh-rai-command">Tổng quan vùng</a><a href="#zone-cai-mep">Cái Mép</a><a href="#zone-long-son">Long Sơn</a><a href="#zone-can-gio">Cần Giờ</a><a href="#regional-systems">Hệ thống liên kết</a></div><div class="intelgrid">
+</section>\n<section class="card" id="port-weather"><h2>Thời tiết gần cảng · 3 ngày tới</h2>
+<p class="muted">Ba ngày trọn vẹn kể từ ngày mai, theo giờ địa phương của cảng. Chỉ tải khi bạn bấm xem.</p>
+<div class="field"><label for="wxPort">Chọn cảng</label><select id="wxPort"><option value="cai-mep">Cái Mép · Việt Nam</option><option value="jebel-ali">Jebel Ali · UAE</option></select></div>
+<button type="button" id="wxLoad">Xem dự báo</button> <span class="status" id="wxStatus" role="status"></span>
+<table class="ai-fx-table" id="wxTable" hidden><caption>Dự báo điểm gần cảng</caption><thead><tr><th scope="col">Ngày</th><th scope="col">Nhiệt độ (°C)</th><th scope="col">Mưa (mm)</th><th scope="col">Gió 10 m cao nhất (km/h)</th></tr></thead><tbody id="wxRows"></tbody></table>
+<p class="muted">Nguồn: <a href="https://dynamical.org/catalog/noaa-gfs-forecast/" target="_blank" rel="noopener noreferrer">NOAA GFS qua dynamical.org</a> (<a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">CC BY 4.0</a>); PortWay tổng hợp từ lưới mô hình, không phải số đo tại bến. Gió không phải gió giật. Không dùng để quyết định an toàn hàng hải.</p>
+<p class="muted">Bản tin và cảnh báo chính thức: <a href="https://nchmf.gov.vn/Kttv/vi-VN/1/thoi-tiet-bien-24h-s12h3-15.html" target="_blank" rel="noopener noreferrer">Khí tượng thủy văn Việt Nam</a> · <a href="https://albahar.ncm.gov.ae/" target="_blank" rel="noopener noreferrer">NCM UAE</a>.</p></section>
+<section class="card" id="ganh-rai-command"><div class="eyebrow" style="color:var(--gold)">Regional Intelligence Program</div><h2 style="margin:4px 0">Gành Rái Maritime Economic Intelligence</h2><p class="muted">Trung tâm nghiên cứu liên kết cảng biển, công nghiệp, năng lượng, đô thị, logistics và kinh tế biển quanh Vịnh Gành Rái.</p><div class="notice">Đây là mô hình nghiên cứu độc lập của PortWay SI, không phải quy hoạch vùng hay cơ chế quản trị đã được phê duyệt. Mọi thông tin dự án phải ghi rõ nguồn và trạng thái pháp lý.</div><div class="hubnav"><a href="#ganh-rai-command">Tổng quan vùng</a><a href="#zone-cai-mep">Cái Mép</a><a href="#zone-long-son">Long Sơn</a><a href="#zone-can-gio">Cần Giờ</a><a href="#regional-systems">Hệ thống liên kết</a></div><div class="intelgrid">
 <article class="intel" id="zone-cai-mep"><div class="domain">Cửa ngõ cảng quốc tế</div><h3>Cái Mép – Thị Vải – Cái Mép Hạ</h3><p>Cảng container nước sâu, hãng tàu, tuyến quốc tế, sản lượng hàng, hậu phương logistics và kết nối đường bộ/đường thủy.</p><span class="evidence-label">Hồ sơ khu vực</span><p><button class="secondary" data-region="caimep">Mở khung nghiên cứu</button></p></article>
 <article class="intel" id="zone-long-son"><div class="domain">Công nghiệp & năng lượng</div><h3>Long Sơn – Phú Mỹ</h3><p>Công nghiệp hóa dầu, năng lượng, hạ tầng kỹ thuật, nhu cầu nguyên liệu, hàng lỏng/hàng rời và dịch vụ công nghiệp.</p><span class="evidence-label">Hồ sơ khu vực</span><p><button class="secondary" data-region="longson">Mở khung nghiên cứu</button></p></article>
 <article class="intel" id="zone-can-gio"><div class="domain">Cửa ngõ sinh thái & hàng hải</div><h3>Cần Giờ</h3><p>Đề xuất cảng, kết nối hàng hải, đô thị, du lịch, dịch vụ biển, hệ sinh thái rừng ngập mặn và giới hạn môi trường.</p><span class="evidence-label">Hồ sơ khu vực</span><p><button class="secondary" data-region="cangio">Mở khung nghiên cứu</button></p></article>
@@ -67,6 +74,44 @@
 <footer><a href="./privacy.html">Chính sách quyền riêng tư</a> · PortWay SI · Prototype. Nội dung phân tích chỉ phục vụ nghiên cứu và giáo dục.</footer>
 </main><script>
 let piUser=null;const $=id=>document.getElementById(id);
+const wxFmt = n => typeof n === "number" && Number.isFinite(n) ? n.toLocaleString("vi-VN", { maximumFractionDigits: 2 }) : "—";
+$("wxLoad").addEventListener("click", async () => {
+  const btn = $("wxLoad"), control = $("wxPort"), status = $("wxStatus"), rows = $("wxRows"), table = $("wxTable");
+  const port = control.value;
+  control.disabled = btn.disabled = true;
+  table.hidden = true;
+  rows.replaceChildren();
+  status.textContent = "Đang tải dữ liệu mô hình…";
+  try {
+    const res = await fetch("https://portway-si-policy.nguyenminh2290.workers.dev/api/port-weather?port=" + encodeURIComponent(port));
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || "Không có dữ liệu.");
+    const { days, timezone, run_at, fetched_at } = data;
+    if (!Array.isArray(days) || days.length !== 3 || !["Asia/Ho_Chi_Minh", "Asia/Dubai"].includes(timezone)) throw new Error("Dữ liệu không đầy đủ.");
+    const fmt = date => new Intl.DateTimeFormat("vi-VN", { dateStyle: "short", timeStyle: "short", timeZone: timezone }).format(new Date(date));
+    status.textContent = "Giờ địa phương (" + timezone + "). Chạy mô hình: " + fmt(run_at) + " · Lấy dữ liệu: " + fmt(fetched_at);
+    for (const day of days) {
+      const tr = document.createElement("tr");
+      const dateLabel = day.date.split("-").reverse().join("/");
+      for (const [index, label] of [dateLabel, wxFmt(day.min_c) + " đến " + wxFmt(day.max_c), wxFmt(day.rain_mm), wxFmt(day.wind_max_kmh)].entries()) {
+        const cell = document.createElement(index === 0 ? "th" : "td");
+        if (index === 0) cell.scope = "row";
+        cell.textContent = label;
+        tr.append(cell);
+      }
+      rows.append(tr);
+    }
+    table.hidden = false;
+  } catch (err) {
+    status.textContent = "Chưa có dự báo: " + err.message + " Xem bản tin chính thức bên dưới.";
+  } finally { control.disabled = btn.disabled = false; }
+});
+$("wxPort").addEventListener("change", () => {
+  $("wxTable").hidden = true;
+  $("wxRows").replaceChildren();
+  $("wxStatus").textContent = "Bấm Xem dự báo để tải dữ liệu cho cảng này.";
+});
+
 if(window.Pi){try{Pi.init({version:"2.0",sandbox:new URLSearchParams(window.location.search).get("piSandbox")==="1"})}catch(e){$("piStatus").textContent="Lỗi khởi tạo Pi SDK: "+e.message}}else{$("piStatus").textContent="Không tìm thấy Pi SDK. Hãy mở ứng dụng trong Pi Browser."}
 $("login").onclick=async()=>{const endpoint="https://portway-si-policy.nguyenminh2290.workers.dev";if(!window.Pi){$("piStatus").textContent="Pi SDK chưa sẵn sàng. Hãy mở trong Pi Browser.";return}try{$("piStatus").textContent="Đang xác thực với Pi...";const a=await Pi.authenticate(["username"]);const response=await fetch(endpoint+"/api/pi/verify",{method:"POST",headers:{"Authorization":"Bearer "+a.accessToken,"Content-Type":"application/json"}});const data=await response.json();if(!response.ok||!data.verified)throw new Error(data.error||"Không xác minh được tài khoản");piUser=data.user;$("piStatus").textContent="Đã xác minh Pi: @"+piUser.username+" · UID được xác thực ở backend"}catch(e){piUser=null;$("piStatus").textContent="Đăng nhập chưa hoàn tất: "+(e.message||e)}};
 $("logout").onclick=()=>{piUser=null;$("piStatus").textContent="Đã xóa tên người dùng khỏi giao diện. Thu hồi quyền trong Pi Wallet nếu cần."};
