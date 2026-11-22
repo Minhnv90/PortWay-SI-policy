@@ -140,7 +140,7 @@ const showAIListPrice = estimate => {
   $("researchAIFxUSD").textContent = valid ? estimate.usd.replace(".", ",") : "";
   $("researchAIFxVND").textContent = valid ? displayVND(estimate.usd) : "";
 };
-const curatedUrls = new Map(Object.entries({"cmit-overview":"https://www.cmit.com.vn/en/News/cmit-and-tctt-successfully-operate-the-first-trial-vessel-call-at-the-joint-berth-connecting-the-two-terminals","jebel-overview":"https://www.dpworld.com/en/ports-terminals/uae/jebel-ali-port","cepa-vn-uae":"https://vioit.moit.gov.vn/ftas/tin-tuc/su-kien/cepa-viet-nam-uae-nhung-quy-dinh-doanh-nghiep-can-luu-y-ve-xuat-xu-hang-hoa-theo-thong-tu-24-2026-tt-bct-361.145.html"}));
+const curatedUrls = new Map(Object.entries({"cmit-overview":"https://www.cmit.com.vn/en/News/cmit-and-tctt-successfully-operate-the-first-trial-vessel-call-at-the-joint-berth-connecting-the-two-terminals","jebel-overview":"https://www.dpworld.com/en/ports-terminals/uae/jebel-ali-port","cepa-vn-uae":"https://vioit.moit.gov.vn/ftas/tin-tuc/su-kien/cepa-viet-nam-uae-nhung-quy-dinh-doanh-nghiep-can-luu-y-ve-xuat-xu-hang-hoa-theo-thong-tu-24-2026-tt-bct-361.145.html","vn-business-registry":"https://dangkykinhdoanh.gov.vn/vn/Pages/Staticpage.aspx?key=dvc","unece-unlocode":"https://unece.org/trade/uncefact/unlocode","imo-vgm":"https://www.imo.org/en/ourwork/safety/pages/verification-of-the-gross-mass.aspx","icc-incoterms":"https://library.iccwbo.org/clp/clp-incoterms-qa-2020.htm","vtip-procedures":"https://www.vietnamtradeportal.gov.vn/index.php?id=3&r=site/display"}));
 const showCuratedSources = items => {
   const list = $("researchCuratedList"), panel = $("researchCurated");
   list.replaceChildren();
