@@ -21,7 +21,14 @@
 <p><a href="https://vietcombank.com.vn/vi-VN/KHCN/Cong-cu-Tien-ich/Ty-gia" target="_blank" rel="noopener noreferrer">Tỷ giá bán USD của Vietcombank</a>: 25.980 VND/USD, lúc 23:00 ngày 21/11/2026 (giờ Việt Nam). Tỷ giá tham chiếu cố định, không cập nhật trực tiếp.</p>
 <table class="ai-fx-table"><caption>Bảng quy đổi tham khảo USD → VND</caption><thead><tr><th scope="col">Mức</th><th scope="col">USD</th><th scope="col">VND</th></tr></thead><tbody><tr><th scope="row">Lượt AI này</th><td id="researchAIFxUSD"></td><td id="researchAIFxVND"></td></tr><tr><th scope="row">Ví dụ</th><td>1</td><td>25.980</td></tr><tr><th scope="row">Ví dụ</th><td>10</td><td>259.800</td></tr></tbody></table>
 </div>
-</section>\n<section class="card" id="port-weather"><h2>Thời tiết gần cảng · 3 ngày tới</h2>
+</section>\n<section class="card" id="ban-mau-logistics"><h2>Một lô hàng, ba việc cần chốt</h2>
+<p class="muted">Tình huống giả định: doanh nghiệp muốn gửi một container khô từ Cái Mép đến Jebel Ali. Đây là checklist tham khảo, không xác nhận tuyến, lịch hay mức cước.</p>
+<ol><li>Chốt cảng dỡ và điểm giao cuối: bãi container hay tận kho?</li><li>Xin xác nhận lịch, chỗ và báo giá đã gồm phụ phí từ hãng tàu hoặc đại lý.</li><li>Đối chiếu mã HS, hóa đơn, phiếu đóng gói và chứng từ xuất xứ trước khi gửi.</li></ol>
+<button type="button" class="secondary" id="portwayShareSample">Chia sẻ bản mẫu</button> <a href="https://minhnv90.github.io/PortWay-SI-policy/#ban-mau-logistics">Mở liên kết bản mẫu</a>
+<p class="status" id="portwayShareSampleStatus" role="status"></p>
+<div class="field" id="portwayShareSampleManual" hidden><label for="portwayShareSampleText">Văn bản bản mẫu để chép thủ công</label><textarea id="portwayShareSampleText" rows="6" readonly></textarea></div>
+</section>
+<section class="card" id="port-weather"><h2>Thời tiết gần cảng · 3 ngày tới</h2>
 <p class="muted">Ba ngày trọn vẹn kể từ ngày mai, theo giờ địa phương của cảng. Chỉ tải khi bạn bấm xem.</p>
 <div class="field"><label for="wxPort">Chọn cảng</label><select id="wxPort"><option value="cai-mep">Cái Mép · Việt Nam</option><option value="jebel-ali">Jebel Ali · UAE</option></select></div>
 <button type="button" id="wxLoad">Xem dự báo</button> <span class="status" id="wxStatus" role="status"></span>
@@ -74,6 +81,28 @@
 <footer><a href="./privacy.html">Chính sách quyền riêng tư</a> · PortWay SI · Prototype. Nội dung phân tích chỉ phục vụ nghiên cứu và giáo dục.</footer>
 </main><script>
 let piUser=null;const $=id=>document.getElementById(id);
+const portwaySampleShareText = "PORTWAY SI | Một lô hàng, ba việc cần chốt\n"
+  + "Tình huống giả định: container khô từ Cái Mép đến Jebel Ali. Không xác nhận tuyến, lịch hay mức cước.\n"
+  + "1. Chốt cảng dỡ và điểm giao cuối.\n"
+  + "2. Xin hãng tàu/đại lý xác nhận lịch, chỗ và báo giá gồm phụ phí.\n"
+  + "3. Đối chiếu mã HS, hóa đơn, phiếu đóng gói và chứng từ xuất xứ.\n"
+  + "https://minhnv90.github.io/PortWay-SI-policy/#ban-mau-logistics";
+$("portwayShareSample").addEventListener("click", async () => {
+  const status = $("portwayShareSampleStatus"), manual = $("portwayShareSampleManual"), box = $("portwayShareSampleText");
+  manual.hidden = true;
+  box.value = "";
+  try {
+    await navigator.clipboard.writeText(portwaySampleShareText);
+    status.textContent = "Đã sao chép bản mẫu. Chưa gửi hoặc đăng ở đâu.";
+  } catch {
+    manual.hidden = false;
+    box.value = portwaySampleShareText;
+    box.focus();
+    box.select();
+    status.textContent = "Không thể sao chép tự động. Văn bản đã được chọn để bạn chép thủ công.";
+  }
+});
+
 const wxFmt = n => typeof n === "number" && Number.isFinite(n) ? n.toLocaleString("vi-VN", { maximumFractionDigits: 2 }) : "—";
 $("wxLoad").addEventListener("click", async () => {
   const btn = $("wxLoad"), control = $("wxPort"), status = $("wxStatus"), rows = $("wxRows"), table = $("wxTable");
