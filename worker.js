@@ -1,3 +1,18 @@
+// Cloudflare list rates checked 2026-11-22. The map uses 1/10,000,000 USD per token.
+const aiListRates = new Map([
+  ["@cf/google/gemma-4-26b-a4b-it", { input: 1n, output: 3n }]
+]);
+const estimateAIListPrice = (model, usage) => {
+  const rate = aiListRates.get(model);
+  if (!rate || !Number.isSafeInteger(usage?.prompt_tokens) || usage.prompt_tokens < 0 ||
+      !Number.isSafeInteger(usage?.completion_tokens) || usage.completion_tokens < 0) return null;
+  const units = rate.input * BigInt(usage.prompt_tokens) + rate.output * BigInt(usage.completion_tokens);
+  return {
+    usd: String(units / 10000000n) + "." + String(units % 10000000n).padStart(7, "0"),
+    basis: "cloudflare_uncached_list_price"
+  };
+};
+
 const tokenUsage = (usage) => {
   if (!usage || typeof usage !== "object") return null;
   const counts = Object.fromEntries(["prompt_tokens", "completion_tokens", "total_tokens"].flatMap(key =>
@@ -78,7 +93,7 @@ export default {
   async fetch(request, env) {
     const url = new URL(request.url);
     if (request.method === "GET" && (url.pathname === "/" || url.pathname === "/api/status")) {
-      return Response.json({ service: "PortWay SI", status: "online", release: "business-research-usage-v1", ai_configured: Boolean(typeof env.AI?.run === "function" && env.AI_MODEL), missing_config: [typeof env.AI?.run === "function" ? null : "AI", env.AI_MODEL ? null : "AI_MODEL"].filter(Boolean), note: "Status only; AI response is not tested." }, { headers: { "Cache-Control": "no-store", "Access-Control-Allow-Origin": "*" } });
+      return Response.json({ service: "PortWay SI", status: "online", release: "business-research-usage-price-v1", ai_configured: Boolean(typeof env.AI?.run === "function" && env.AI_MODEL), missing_config: [typeof env.AI?.run === "function" ? null : "AI", env.AI_MODEL ? null : "AI_MODEL"].filter(Boolean), note: "Status only; AI response is not tested." }, { headers: { "Cache-Control": "no-store", "Access-Control-Allow-Origin": "*" } });
     }
     const headers = cors(request, env);
     if (!headers) return new Response("Origin not allowed", { status: 403 });
@@ -132,7 +147,9 @@ export default {
       });
       const answer = data?.choices?.[0]?.message?.content ?? data?.response;
       if (typeof answer !== "string" || !answer.trim()) return Response.json({ error: "Empty AI response." }, { status: 502, headers });
-      return Response.json({ answer: answer.trim(), usage: tokenUsage(data?.usage), evidence_count: evidence.length, knowledge_count: knowledge.length, knowledge_sources: knowledge.map(r => ({ title: r.title, geography: r.geography, evidence_status: r.evidence_status, organization: r.source_organization, url: r.source_url, last_checked_at: r.last_checked_at })) }, { headers });
+      const usage = tokenUsage(data?.usage);
+      const costEstimate = estimateAIListPrice(env.AI_MODEL, usage);
+      return Response.json({ answer: answer.trim(), usage, cost_estimate: costEstimate, evidence_count: evidence.length, knowledge_count: knowledge.length, knowledge_sources: knowledge.map(r => ({ title: r.title, geography: r.geography, evidence_status: r.evidence_status, organization: r.source_organization, url: r.source_url, last_checked_at: r.last_checked_at })) }, { headers });
     } catch {
       return Response.json({ error: "Could not reach AI provider." }, { status: 502, headers });
     }
