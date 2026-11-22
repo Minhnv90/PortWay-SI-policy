@@ -1,3 +1,89 @@
+const weatherPorts = new Map([
+  ["cai-mep", { latitude: 10.5172, longitude: 107.0142, tz: "Asia/Ho_Chi_Minh", offsetHours: 7 }],
+  ["jebel-ali", { latitude: 25.01, longitude: 55.06, tz: "Asia/Dubai", offsetHours: 4 }]
+]);
+const wxHour = 3600000;
+const wxDay = 24 * wxHour;
+const wxKeys = ["temperature_2m", "precipitation_surface", "wind_u_10m", "wind_v_10m"];
+const mapWeather = (result, port, now) => {
+  const run = result?.forecasts?.[0];
+  const initialized = Date.parse(run?.initTime);
+  if (result?.dataProduct?.id !== "noaa-gfs-forecast" || !Number.isFinite(initialized) ||
+      initialized > now || now - initialized > wxDay ||
+      !Array.isArray(run.validTimes)) return null;
+  const rows = new Map(run.validTimes.map((date, index) => [Date.parse(date), index]));
+  const units = result?.variables;
+  const value = (key, ms, lo, hi) => {
+    const num = run.data?.[key]?.[rows.get(ms)];
+    return typeof num === "number" && Number.isFinite(num) && num >= lo && num <= hi ? num : null;
+  };
+  const tempOK = units?.temperature_2m?.unit === "degree_Celsius";
+  const windOK = ["wind_u_10m", "wind_v_10m"].every(key => /^m\s+(?:s-1|s\^-1)$/.test(units?.[key]?.unit || ""));
+  const rainOK = /^(?:kg m-2 s-1|kg m\^-2 s\^-1|mm s-1|mm\/s)$/.test(units?.precipitation_surface?.unit || "");
+  if (!tempOK) return null;
+  const delta = port.offsetHours * wxHour;
+  const nextMidnight = (Math.floor((now + delta) / wxDay) + 1) * wxDay - delta;
+  const round = (n, places = 1) => Number(n.toFixed(places));
+  const days = Array.from({ length: 3 }, (_, offset) => {
+    const start = nextMidnight + offset * wxDay;
+    const stats = Array.from({ length: 24 }, (_, hour) => {
+      const t = start + hour * wxHour;
+      const u = windOK ? value("wind_u_10m", t, -120, 120) : null;
+      const v = windOK ? value("wind_v_10m", t, -120, 120) : null;
+      return {
+        temp: value("temperature_2m", t, -90, 70),
+        wind: u === null || v === null ? null : Math.hypot(u, v) * 3.6,
+        rain: rainOK && rows.get(t + wxHour) === rows.get(t) + 1 ? value("precipitation_surface", t + wxHour, 0, 1) : null
+      };
+    });
+    const complete = key => stats.every(s => s[key] !== null);
+    return {
+      date: new Date(start + delta).toISOString().slice(0, 10),
+      min_c: complete("temp") ? round(Math.min(...stats.map(s => s.temp))) : null,
+      max_c: complete("temp") ? round(Math.max(...stats.map(s => s.temp))) : null,
+      wind_max_kmh: complete("wind") ? round(Math.max(...stats.map(s => s.wind))) : null,
+      rain_mm: complete("rain") ? round(stats.reduce((mm, s) => mm + s.rain * 3600, 0), 2) : null
+    };
+  });
+  return days.every(day => day.min_c !== null)
+    ? { run_at: new Date(initialized).toISOString(), fetched_at: new Date(now).toISOString(), timezone: port.tz, days }
+    : null;
+};
+const handlePortWeather = async (url, headers, ctx) => {
+  const id = url.searchParams.get("port");
+  const port = weatherPorts.get(id);
+  if (!port) return Response.json({ error: "Cảng không được hỗ trợ." }, { status: 400, headers });
+  const response = (data, status = 200) => Response.json(data, { status, headers: { ...headers, "Cache-Control": "no-store" } });
+  const cache = globalThis.caches?.default;
+  const cacheKey = new Request(url.origin + "/__weather_cache_v1/" + id);
+  try {
+    const stored = cache ? await cache.match(cacheKey) : null;
+    if (stored) {
+      const data = await stored.json();
+      const age = Date.now() - Date.parse(data.run_at);
+      const delta = port.offsetHours * wxHour;
+      const nextLocalDate = new Date((Math.floor((Date.now() + delta) / wxDay) + 1) * wxDay).toISOString().slice(0, 10);
+      if (age >= 0 && age <= wxDay && data.days?.[0]?.date === nextLocalDate) return response(data);
+    }
+  } catch { /* Cache is optional. */ }
+  try {
+    const upstream = await fetch("https://api.dynamical.org/v1/forecasts", {
+      method: "POST",
+      headers: { "content-type": "application/json", "accept": "application/json" },
+      body: JSON.stringify({ queries: [{ dataProductId: "noaa-gfs-forecast", location: { latitude: port.latitude, longitude: port.longitude }, maxLeadTimeHours: 120, variables: wxKeys }] }),
+      signal: AbortSignal.timeout(12000)
+    });
+    if (!upstream.ok) return response({ error: "Chưa lấy được dữ liệu thời tiết từ nguồn mô hình." }, 503);
+    const raw = await upstream.json();
+    const data = mapWeather(raw?.results?.[0], port, Date.now());
+    if (!data) return response({ error: "Dữ liệu mô hình đã cũ hoặc chưa đủ 3 ngày, không hiển thị dự báo." }, 503);
+    if (cache && ctx?.waitUntil) ctx.waitUntil(cache.put(cacheKey, Response.json(data, { headers: { "Cache-Control": "public, max-age=900" } })).catch(() => {}));
+    return response(data);
+  } catch {
+    return response({ error: "Chưa lấy được dữ liệu thời tiết từ nguồn mô hình." }, 503);
+  }
+};
+
 // Cloudflare list rates checked 2026-11-22. The map uses 1/10,000,000 USD per token.
 const aiListRates = new Map([
   ["@cf/google/gemma-4-26b-a4b-it", { input: 1n, output: 3n }]
@@ -90,14 +176,15 @@ async function handleKnowledge(request, env, headers, url) {
 }
 
 export default {
-  async fetch(request, env) {
+  async fetch(request, env, ctx) {
     const url = new URL(request.url);
     if (request.method === "GET" && (url.pathname === "/" || url.pathname === "/api/status")) {
-      return Response.json({ service: "PortWay SI", status: "online", release: "business-research-usage-price-v2", ai_configured: Boolean(typeof env.AI?.run === "function" && env.AI_MODEL), missing_config: [typeof env.AI?.run === "function" ? null : "AI", env.AI_MODEL ? null : "AI_MODEL"].filter(Boolean), note: "Status only; AI response is not tested." }, { headers: { "Cache-Control": "no-store", "Access-Control-Allow-Origin": "*" } });
+      return Response.json({ service: "PortWay SI", status: "online", release: "business-weather-v1", ai_configured: Boolean(typeof env.AI?.run === "function" && env.AI_MODEL), missing_config: [typeof env.AI?.run === "function" ? null : "AI", env.AI_MODEL ? null : "AI_MODEL"].filter(Boolean), note: "Status only; AI response is not tested." }, { headers: { "Cache-Control": "no-store", "Access-Control-Allow-Origin": "*" } });
     }
     const headers = cors(request, env);
     if (!headers) return new Response("Origin not allowed", { status: 403 });
     if (request.method === "OPTIONS") return new Response(null, { status: 204, headers });
+    if (request.method === "GET" && url.pathname === "/api/port-weather") return handlePortWeather(url, headers, ctx);
     const knowledgeResponse = await handleKnowledge(request, env, headers, url);
     if (knowledgeResponse) return knowledgeResponse;
     if (url.pathname === "/api/pi/verify" && request.method === "POST") {
