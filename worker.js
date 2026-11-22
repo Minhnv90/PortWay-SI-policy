@@ -60,16 +60,149 @@ const localPortWayKnowledge = [
         "c o"
       ]
     ]
+  },
+  {
+    "id": "vn-business-registry",
+    "title": "Tra cứu thông tin đăng ký doanh nghiệp Việt Nam",
+    "org": "Cổng thông tin quốc gia về đăng ký doanh nghiệp",
+    "url": "https://dangkykinhdoanh.gov.vn/vn/Pages/Staticpage.aspx?key=dvc",
+    "checked": "2026-11-22",
+    "scope": "Thông tin đăng ký cơ bản của doanh nghiệp tại Việt Nam; không phải xác minh tài khoản nhận tiền, giấy phép chuyên ngành hay khả năng thanh toán.",
+    "note": "Cổng quốc gia mô tả việc tra cứu miễn phí các dữ liệu cơ bản như tên, mã số, trụ sở, tình trạng hoạt động và người đại diện theo pháp luật. Dùng để đối chiếu hồ sơ tại Việt Nam, không kết luận đối tác đáng tin hoặc người liên hệ có quyền ký thay.",
+    "match": [
+      [
+        "cong dang ky doanh nghiep",
+        "dangkykinhdoanh",
+        "dang ky doanh nghiep viet nam",
+        "tra cuu doanh nghiep viet nam",
+        "ma so doanh nghiep viet nam",
+        "dang ky kinh doanh viet nam",
+        "kyb viet nam"
+      ],
+      [
+        "viet nam",
+        "trong nuoc"
+      ],
+      [
+        "kyb",
+        "xac minh phap nhan",
+        "tham dinh doi tac",
+        "ma so doanh nghiep"
+      ]
+    ]
+  },
+  {
+    "id": "unece-unlocode",
+    "title": "UN/LOCODE: mã địa điểm thương mại và vận tải",
+    "org": "UNECE",
+    "url": "https://unece.org/trade/uncefact/unlocode",
+    "checked": "2026-11-22",
+    "scope": "Giải thích chuẩn địa điểm; không tra mã đang có hiệu lực, không xác nhận lịch tàu, terminal hay booking.",
+    "note": "UN/LOCODE chuẩn hóa cách nhận diện địa điểm thương mại/vận tải. Mã địa điểm dùng để đối chiếu cảng xếp, cảng dỡ hoặc điểm giao trong hồ sơ; không tự chứng minh tên bến cụ thể, tuyến đang chạy, ngày khởi hành, chỗ trống hay giao hàng.",
+    "match": [
+      [
+        "un locode",
+        "unlocode",
+        "locode",
+        "ma dia diem thuong mai",
+        "ma dia diem van tai",
+        "ma cang",
+        "port code"
+      ]
+    ]
+  },
+  {
+    "id": "imo-vgm",
+    "title": "VGM của container đã đóng hàng theo SOLAS",
+    "org": "Tổ chức Hàng hải Quốc tế (IMO)",
+    "url": "https://www.imo.org/en/ourwork/safety/pages/verification-of-the-gross-mass.aspx",
+    "checked": "2026-11-22",
+    "scope": "Trang giải thích của IMO; không xác lập cut-off, thủ tục cân tại bến, phí, hoặc đảm bảo được xếp tàu.",
+    "note": "Theo hướng dẫn IMO về SOLAS, người gửi hàng theo chứng từ vận chuyển có trách nhiệm xác định và lập chứng từ tổng khối lượng đã xác minh (VGM) cho container đã đóng hàng. VGM cần đến đại diện cảng và thuyền trưởng hoặc đại diện đủ sớm để lập sơ đồ xếp tàu. Đây là điều kiện để được xem xét xếp, không phải cam kết xếp tàu.",
+    "match": [
+      [
+        "vgm",
+        "solas",
+        "verified gross mass",
+        "can vgm",
+        "tong khoi luong da xac minh"
+      ]
+    ]
+  },
+  {
+    "id": "icc-incoterms",
+    "title": "Incoterms® và phạm vi hợp đồng mua bán",
+    "org": "Phòng Thương mại Quốc tế (ICC)",
+    "url": "https://library.iccwbo.org/clp/clp-incoterms-qa-2020.htm",
+    "checked": "2026-11-22",
+    "scope": "Giải thích phạm vi Incoterms® 2020; không thay toàn bộ hợp đồng, không kết luận bên nào phải thanh toán trong một lô cụ thể.",
+    "note": "Incoterms® phân định nghĩa vụ giao hàng, rủi ro và một số chi phí giữa người mua và bán. Không tự ấn định cách/thời hạn thanh toán hoặc thời điểm chuyển quyền sở hữu. Khi rà soát, tách điều khoản thương mại, địa điểm nêu tên và phiên bản khỏi điều khoản thanh toán, quyền sở hữu.",
+    "match": [
+      [
+        "incoterm",
+        "incoterms"
+      ],
+      [
+        "fob",
+        "cif",
+        "dap",
+        "ddp",
+        "fca",
+        "exw",
+        "cip",
+        "dpu",
+        "cpt",
+        "fas",
+        "cfr"
+      ],
+      [
+        "giao hang",
+        "hop dong",
+        "chuyen rui ro",
+        "chuyen quyen",
+        "thanh toan",
+        "dieu kien thuong mai"
+      ]
+    ]
+  },
+  {
+    "id": "vtip-procedures",
+    "title": "Hướng dẫn thủ tục xuất nhập khẩu Việt Nam",
+    "org": "Cổng Thông tin Thương mại Việt Nam (VTIP)",
+    "url": "https://www.vietnamtradeportal.gov.vn/index.php?id=3&r=site/display",
+    "checked": "2026-11-22",
+    "scope": "Cổng hướng dẫn và tìm tài liệu; kiểm lại văn bản gốc, hiệu lực và mặt hàng; không kết luận thủ tục/thuế cho lô cụ thể.",
+    "note": "VTIP có hướng dẫn riêng cho hàng thương mại xuất và nhập, với điểm tìm thủ tục, văn bản, hàng hóa và biểu mẫu. Dùng làm điểm bắt đầu rồi đối chiếu văn bản áp dụng theo mặt hàng, mã HS, chiều hàng, cửa khẩu và thời điểm.",
+    "match": [
+      [
+        "vtip",
+        "vietnam trade portal",
+        "cong thong tin thuong mai viet nam",
+        "thu tuc hai quan",
+        "thu tuc xuat nhap khau",
+        "thu tuc nhap khau",
+        "thu tuc xuat khau",
+        "khai bao hai quan"
+      ]
+    ]
   }
 ];
 const normalizeKnowledgeQuery = text => " " + text.toLowerCase().normalize("NFD").replace(/\p{M}/gu, "").replace(/đ/g, "d").replace(/[^a-z0-9]+/g, " ").trim() + " ";
 const selectLocalKnowledge = question => {
   const q = normalizeKnowledgeQuery(question.slice(0,8000));
-  return localPortWayKnowledge.filter(r => {
-    const has = list => list.some(term => q.includes(" " + term + " "));
-    if (r.id === "cepa-vn-uae") return has(r.match[0]) || (has(r.match[1]) && has(r.match[2]));
-    return has(r.match[0]);
-  }).slice(0,3);
+  const rank = r => {
+    const has = list => (list || []).some(term => q.includes(" " + term + " "));
+    if (r.id === "cepa-vn-uae") return has(r.match[0]) ? 3 : has(r.match[1]) && has(r.match[2]) ? 2 : 0;
+    if (["vn-business-registry", "icc-incoterms"].includes(r.id)) return has(r.match[0]) ? 4 : has(r.match[1]) && has(r.match[2]) ? 3 : 0;
+    if (["cmit-overview","jebel-overview"].includes(r.id)) {
+      const onlyWeather = has(["thoi tiet","du bao","nhiet do"]) && !has(["logistics","cang do","tau","hang hoa","khai thac","ben","tuyen","la gi"]);
+      return !onlyWeather && has(r.match[0]) ? 2 : 0;
+    }
+    if (r.id === "imo-vgm" && has(["may loc","dinh duong","trieu chung"]) && !has(["container","solas","tau","verified gross mass"])) return 0;
+    return has(r.match[0]) ? 4 : 0;
+  };
+  return localPortWayKnowledge.map(r => ({r, score:rank(r)})).filter(x => x.score > 0)
+    .sort((a,b) => b.score - a.score).slice(0,3).map(x => x.r);
 };
 
 const weatherPorts = new Map([
@@ -253,7 +386,7 @@ export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
     if (request.method === "GET" && (url.pathname === "/" || url.pathname === "/api/status")) {
-      return Response.json({ service: "PortWay SI", status: "online", release: "business-weather-knowledge-v1", ai_configured: Boolean(typeof env.AI?.run === "function" && env.AI_MODEL), missing_config: [typeof env.AI?.run === "function" ? null : "AI", env.AI_MODEL ? null : "AI_MODEL"].filter(Boolean), note: "Status only; AI response is not tested." }, { headers: { "Cache-Control": "no-store", "Access-Control-Allow-Origin": "*" } });
+      return Response.json({ service: "PortWay SI", status: "online", release: "business-weather-knowledge-v2", ai_configured: Boolean(typeof env.AI?.run === "function" && env.AI_MODEL), missing_config: [typeof env.AI?.run === "function" ? null : "AI", env.AI_MODEL ? null : "AI_MODEL"].filter(Boolean), note: "Status only; AI response is not tested." }, { headers: { "Cache-Control": "no-store", "Access-Control-Allow-Origin": "*" } });
     }
     const headers = cors(request, env);
     if (!headers) return new Response("Origin not allowed", { status: 403 });
