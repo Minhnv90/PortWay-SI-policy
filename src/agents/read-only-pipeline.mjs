@@ -9,8 +9,8 @@ export async function runReadOnlyResearch(question, adapters) {
   const sourced = records.filter(r => r && typeof r.source_url === "string" && /^https:\/\//i.test(r.source_url));
   const results = {
     researcher: { status: "completed", summary: `Found ${records.length} approved-record candidates` },
-    verifier: { status: "completed", summary: `${sourced.length} records include HTTPS source references; source content NOT independently verified` }
+    verifier: { status: "pending", summary: `${sourced.length} records include HTTPS source references; independent source verification still required` }
   };
-  if (plan.steps.includes("logistics")) results.logistics = { status: "completed", summary: "Logistics review pending domain expert confirmation; no schedules, quotes or VGM cutoff inferred" };
+  if (plan.steps.includes("logistics")) results.logistics = { status: "pending", summary: "Logistics review requires domain expert confirmation; no schedules, quotes or VGM cutoff inferred" };
   return { ...composeResearch(plan, results), sources: sourced.map(r => ({ id: r.id, title: r.title, url: r.source_url, last_checked_at: r.last_checked_at, evidence_status: r.evidence_status })), verification: "metadata_only", production_ready: false };
 }
