@@ -101,18 +101,12 @@ The AI research endpoint automatically retrieves up to six matching approved rec
 - Add rate limiting, admin audit logs, role-based review, source snapshotting and change history before public production.
 
 
-## Admin page and AI provider secrets
+## Staging setup (2026-11-23)
 
-After GitHub Pages publishes this repository, open the private-session admin page: https://minhnv90.github.io/PortWay-SI-policy/knowledge-admin.html
+The `staging-config` branch prepares an isolated D1 database named `portway-si-staging`. Do not use the older production-oriented `wrangler d1 create ...-knowledge`, `--remote`, or bare `wrangler deploy` instructions above for staging. Create the staging D1 database separately, then update the commented `KNOWLEDGE_DB` binding in `wrangler.toml` with its actual ID. The SQL in `migrations/0001_knowledge.sql` is a schema only and must be applied exclusively to the new staging database after verification.
 
-To activate the AI answer endpoint, set the provider details as Worker secrets (not in GitHub or the browser):
+The Worker now uses the native Cloudflare Workers AI binding `env.AI.run(env.AI_MODEL, ...)`; it does **not** read `AI_CHAT_COMPLETIONS_URL` or `AI_API_KEY`. The model is set via `[vars].AI_MODEL` in `wrangler.toml`. Keep `KNOWLEDGE_ADMIN_TOKEN` secret and separate for staging. The admin HTML page is public; API writes still require server-side authentication. Do not paste secrets into GitHub or this chat.
 
-```bash
-npx wrangler secret put AI_CHAT_COMPLETIONS_URL
-npx wrangler secret put AI_API_KEY
-npx wrangler secret put AI_MODEL
-```
+Cron is declared every 6 hours (UTC) but the handler is a deliberate no-op until source collection, review, deduplication and logging are implemented and approved. No autonomous knowledge ingestion or live medical verification exists yet.
 
-Enter the provider's HTTPS chat-completions endpoint, API key, and exact model identifier when Wrangler prompts. Do this only after the Worker is deployed/linked to the correct Cloudflare account and before testing AI questions. Use a provider account and model you control. The API key is never needed by the frontend or admin page.
-
-The admin page URL above is publicly reachable as a static page; the write API still requires the secret admin token. Keep that token private and use the page only on a trusted device.
+**Deployment safety:** This branch is not deployed. Use a separate staging Worker name, domain and D1 database before any test deployment; do not point production routes at staging. Running a deployment or applying remote migrations requires separate approval.
