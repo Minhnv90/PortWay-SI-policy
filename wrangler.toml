@@ -1,4 +1,4 @@
-name = "portway-si-policy"
+name = "portway-si-staging"
 main = "worker.js"
 compatibility_date = "2026-11-21"
 
@@ -18,7 +18,7 @@ crons = ["0 */6 * * *"]
 
 # D1 staging binding template: create a NEW staging database first.
 # Never reuse a production database_id. Uncomment only after assigning its real ID.
-# [[d1_databases]]
-# binding = "KNOWLEDGE_DB"
-# database_name = "portway-si-staging"
-# database_id = "REPLACE_WITH_NEW_STAGING_DATABASE_ID"
+[[d1_databases]]
+binding = "KNOWLEDGE_DB"
+database_name = "portway-si-staging"
+database_id = "63a484b4-ab0f-4f9f-a299-78fca28f6755"
