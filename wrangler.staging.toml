@@ -17,7 +17,7 @@ binding = "AI"
 crons = ["0 */6 * * *"]
 
 # Provision a new isolated D1 database and replace the placeholder before enabling.
-# [[d1_databases]]
-# binding = "KNOWLEDGE_DB"
-# database_name = "portway-si-staging"
-# database_id = "REPLACE_WITH_STAGING_DATABASE_ID"
+[[d1_databases]]
+binding = "KNOWLEDGE_DB"
+database_name = "portway-si-staging"
+database_id = "63a484b4-ab0f-4f9f-a299-78fca28f6755"
