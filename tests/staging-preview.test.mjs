@@ -36,3 +36,15 @@ test("preview rejects non-JSON requests", async () => {
   const response = await worker.fetch(req, { PORTWAY_AGENT_ENABLED: "true", ALLOWED_ORIGINS: "http://localhost:8788", STAGING_PREVIEW_TOKEN: "test-token", KNOWLEDGE_DB: {} }, {});
   assert.equal(response.status, 415);
 });
+
+test("staging blocks admin upsert even with credentials", async () => {
+  const req = new Request("https://portway-si-policy-staging.example.com/api/admin/knowledge/upsert", { method:"POST", headers:{Authorization:"Bearer test-token"}, body:"{}" });
+  const res = await worker.fetch(req, {KNOWLEDGE_ADMIN_TOKEN:"test-token", KNOWLEDGE_DB:{}}, {});
+  assert.equal(res.status,403);
+  assert.equal((await res.json()).error,"staging_admin_disabled");
+});
+test("staging blocks arbitrary write routes", async () => {
+  const req = new Request("https://portway-si-policy-staging.example.com/api/status", {method:"PUT",body:"{}"});
+  const res = await worker.fetch(req,{}, {});
+  assert.equal(res.status,405);
+});
