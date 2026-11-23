@@ -6,7 +6,19 @@ compatibility_date = "2026-11-21"
 ALLOWED_ORIGINS = "https://minhnv90.github.io,https://portwaysix5564.pinet.com"
 AI_MODEL = "@cf/google/gemma-4-26b-a4b-it"
 
-# After creating a D1 database, configure its binding separately.
 
 [ai]
 binding = "AI"
+
+# STAGING PREPARATION ONLY. Do not deploy this branch to production.
+# Cron schedule is UTC: 00:00, 06:00, 12:00, 18:00.
+# The scheduled handler is currently a safe no-op until a vetted ingestion pipeline is approved.
+[triggers]
+crons = ["0 */6 * * *"]
+
+# D1 staging binding template: create a NEW staging database first.
+# Never reuse a production database_id. Uncomment only after assigning its real ID.
+# [[d1_databases]]
+# binding = "KNOWLEDGE_DB"
+# database_name = "portway-si-staging"
+# database_id = "REPLACE_WITH_NEW_STAGING_DATABASE_ID"
