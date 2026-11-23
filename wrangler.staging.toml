@@ -1,0 +1,23 @@
+name = "portway-si-staging"
+main = "worker.js"
+compatibility_date = "2026-11-21"
+
+[vars]
+ALLOWED_ORIGINS = "https://minhnv90.github.io,https://portwaysix5564.pinet.com"
+AI_MODEL = "@cf/google/gemma-4-26b-a4b-it"
+
+
+[ai]
+binding = "AI"
+
+
+# STAGING-ONLY config. The Worker name differs from production.
+# Run only after explicit staging deployment approval.
+[triggers]
+crons = ["0 */6 * * *"]
+
+# Provision a new isolated D1 database and replace the placeholder before enabling.
+# [[d1_databases]]
+# binding = "KNOWLEDGE_DB"
+# database_name = "portway-si-staging"
+# database_id = "REPLACE_WITH_STAGING_DATABASE_ID"
