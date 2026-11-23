@@ -38,18 +38,20 @@ Open `index.html` in a browser, or serve this folder with any static HTTP server
 The isolated API worker is in `worker.js`; configuration is in `wrangler.toml`.
 It exposes `POST /api/research-assist`. It accepts a research question and up to eight user-supplied evidence snippets. It does not crawl the web, authenticate sources, or persist requests.
 
-### Deploy
-1. Install Node.js LTS and run `npm install -g wrangler`.
-2. Run `npx wrangler login` from this repository folder.
-3. Replace the placeholder origin in `wrangler.toml` with the exact deployed PortWay SI Pages origin.
-4. Set secrets (use your chosen OpenAI-compatible chat-completions endpoint and model):
-   - `npx wrangler secret put AI_CHAT_COMPLETIONS_URL`
-   - `npx wrangler secret put AI_API_KEY`
-   - `npx wrangler secret put AI_MODEL`
-5. Deploy with `npx wrangler deploy`.
+### Current Cloudflare Workers AI configuration (staging only)
 
-The frontend prototype is not yet wired to this API. After deployment, configure the frontend to call your Worker URL. Do not put provider keys in frontend code or GitHub.
+The current Worker calls `env.AI.run(env.AI_MODEL, ...)` using the native Cloudflare Workers AI binding declared as `[ai] binding = "AI"` in `wrangler.toml`. `AI_MODEL` is a non-secret `[vars]` setting. The older `AI_CHAT_COMPLETIONS_URL` and `AI_API_KEY` setup is **not used** by this Worker. Do not create or commit API keys to GitHub. Check model availability and successful runtime inference separately.
 
+### Staging-only configuration and checks
+
+1. Keep `main` and the existing production Worker unchanged. This branch is configuration preparation, **not** a deployment instruction.
+2. `[triggers] crons = ["0 */6 * * *"]` schedules every six hours (UTC). The `scheduled()` handler is intentionally a **no-op**: it only logs an invocation; it does not crawl sources, write D1, call AI, or self-train.
+3. Create a **new**, isolated Cloudflare D1 database named `portway-si-staging` for staging. Never reuse a production database ID. In this branch's `wrangler.toml`, uncomment the `[[d1_databases]]` block and replace its placeholder with the real new database ID **only after** the staging database exists. The binding must be `KNOWLEDGE_DB` because `worker.js` uses `env.KNOWLEDGE_DB`.
+4. Inspect the existing migration SQL before applying it to the **staging database only**. Do not run remote migrations or any write against production.
+5. Test with mock AI, synthetic records, rejected origins, malformed JSON, denied admin access and unverified evidence / fabricated shipping schedules. Record evidence and failures before proposing any release.
+6. Any future staging deployment must use a separately named Worker, explicitly isolated staging bindings, and a separate approval. Never run a default `wrangler deploy` from this branch against an existing production Worker.
+
+The frontend's Worker URL must also be verified independently. This change does not connect an AI endpoint or prove a live AI response.
 
 ## Pi identity verification
 
