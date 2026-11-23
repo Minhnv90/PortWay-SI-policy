@@ -2,7 +2,7 @@
 export const ROLES = Object.freeze(["researcher", "verifier", "logistics"]);
 export function planResearch(question) {
   if (typeof question !== "string" || !question.trim() || question.length > 8000) throw new TypeError("Invalid research question");
-  const logistics = /\b(vgm|solas|container|incoterms|shipper|shipping|logistics|port|terminal|vessel|cang|cảng|tàu|vận đơn|hải quan)\b/i.test(question);
+  const logistics = /(vgm|solas|container|incoterms|shipper|shipping|logistics|port|terminal|vessel|cang|cảng|tàu|vận đơn|hải quan)/i.test(question);
   return Object.freeze({
     question: question.trim(),
     steps: logistics ? ["researcher", "verifier", "logistics"] : ["researcher", "verifier"],
