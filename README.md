@@ -60,3 +60,8 @@ The Pi login button sends the Pi SDK access token to this app's Worker at `POST 
 ## Knowledge engine
 
 See [`KNOWLEDGE_ENGINE.md`](./KNOWLEDGE_ENGINE.md) for the separate Cloudflare D1 schema, migration, admin ingestion API, approved-record search, and deployment instructions. The D1 binding and `KNOWLEDGE_ADMIN_TOKEN` must be configured before knowledge retrieval or ingestion will work.
+
+
+## Separate staging Worker configuration
+
+Use `wrangler.staging.toml` for staging only. It has a Worker name distinct from production. The D1 block remains commented until the real staging database ID is available. **Do not deploy yet.** After explicit staging deployment approval, use the explicit `--config wrangler.staging.toml` option and verify the target account, Worker name, routes, bindings and secrets before any deployment.
