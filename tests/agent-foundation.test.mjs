@@ -46,7 +46,9 @@ test("integrated read-only pipeline returns sourced metadata without writing", a
   }};
   const result = await runReadOnlyResearch("VGM container", adapters);
   assert.equal(calls, 1);
-  assert.equal(result.complete, false);\n  assert.equal(result.steps.find(step => step.role === "verifier").status, "pending");\n  assert.equal(result.steps.find(step => step.role === "logistics").status, "pending");
+  assert.equal(result.complete, false);
+  assert.equal(result.steps.find(step => step.role === "verifier").status, "pending");
+  assert.equal(result.steps.find(step => step.role === "logistics").status, "pending");
   assert.equal(result.sources.length, 1);
   assert.equal(result.verification, "metadata_only");
   assert.equal(result.production_ready, false);
