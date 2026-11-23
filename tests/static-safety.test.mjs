@@ -16,7 +16,8 @@ test("knowledge retrieval requires approved records", () => {
 });
 test("staging Worker name is distinct from production", () => {
   assert.match(staging, /^name = "portway-si-policy-staging"$/m);
-  assert.doesNotMatch(staging.split("\n").filter(line => !line.trim().startsWith("#")).join("\n"), /^\s*database_id\s*=/m);
+  assert.match(staging, /binding = "KNOWLEDGE_DB"/);
+  assert.match(staging, /database_name = "portway-si-knowledge-staging"/);
 });
 test("agent runtime flags default disabled", () => {
   for (const name of ["PORTWAY_AGENT_ENABLED", "PORTWAY_MCP_ENABLED", "PORTWAY_MEMORY_WRITE_ENABLED"]) {
