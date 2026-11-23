@@ -14,10 +14,11 @@ This repository now includes an independent Cloudflare D1 schema and Worker endp
 **Do not run against production.** First authenticate to your own Cloudflare account locally; never paste a token into GitHub or chat. From the `staging-config` checkout:
 
 ```bash
-npx wrangler d1 create portway-si-staging
+# Already completed in Cloudflare; do not recreate this database.
+# Verify the existing D1 database and its ID in the Cloudflare dashboard.
 ```
 
-Copy the returned database ID into the commented `[[d1_databases]]` block in `wrangler.staging.toml`, set `binding = "KNOWLEDGE_DB"`, and uncomment that block. Before running any remote operation, confirm that the ID is for the newly created **staging** database. The migration SQL is in `migrations/0001_knowledge.sql`.
+The staging database has already been created in Cloudflare. The `KNOWLEDGE_DB` binding is configured in `wrangler.staging.toml` for the separate `portway-si-staging` Worker. Do not create it again. Before running any remote operation, confirm that the ID is for the newly created **staging** database. The migration SQL is in `migrations/0001_knowledge.sql`.
 
 ```bash
 # Only after confirming the isolated staging database ID and approval:
@@ -86,7 +87,7 @@ The AI research endpoint automatically retrieves up to six matching approved rec
 
 ## Staging setup (2026-11-23)
 
-The `staging-config` branch prepares an isolated D1 database named `portway-si-staging`. Do not use the older production-oriented `wrangler d1 create ...-knowledge`, `--remote`, or bare `wrangler deploy` instructions above for staging. Create the staging D1 database separately, then update the commented `KNOWLEDGE_DB` binding in `wrangler.staging.toml` with its actual ID. The SQL in `migrations/0001_knowledge.sql` is a schema only and must be applied exclusively to the new staging database after verification.
+The `staging-config` branch prepares an isolated D1 database named `portway-si-staging`. Do not use the older production-oriented `wrangler d1 create ...-knowledge`, `--remote`, or bare `wrangler deploy` instructions above for staging. The dedicated staging D1 database is already selected in `wrangler.staging.toml` and the staging Worker uses the separate name `portway-si-staging`. The SQL in `migrations/0001_knowledge.sql` is a schema only and must be applied exclusively to the new staging database after verification.
 
 The Worker now uses the native Cloudflare Workers AI binding `env.AI.run(env.AI_MODEL, ...)`; it does **not** read `AI_CHAT_COMPLETIONS_URL` or `AI_API_KEY`. The model is set via `[vars].AI_MODEL` in `wrangler.toml`. Keep `KNOWLEDGE_ADMIN_TOKEN` secret and separate for staging. The admin HTML page is public; API writes still require server-side authentication. Do not paste secrets into GitHub or this chat.
 
