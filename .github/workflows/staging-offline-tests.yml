@@ -17,4 +17,4 @@ jobs:
       - name: Check Worker JavaScript syntax
         run: node --check worker.js
       - name: Run isolated mock smoke tests
-        run: node --test tests/staging-smoke.test.mjs
+        run: node --test tests/*.test.mjs
