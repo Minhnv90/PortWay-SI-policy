@@ -19,3 +19,20 @@ test("preview fails closed without D1", async () => {
   const response = await worker.fetch(request(), { PORTWAY_AGENT_ENABLED: "true", ALLOWED_ORIGINS: "http://localhost:8788", STAGING_PREVIEW_TOKEN: "test-token" }, {});
   assert.equal(response.status, 503);
 });
+
+test("preview rejects oversized body even without Content-Length", async () => {
+  const req = new Request("https://portway-si-policy-staging.example.com/api/agent/preview", {
+    method: "POST", headers: { Origin: "http://localhost:8788", Authorization: "Bearer test-token", "Content-Type": "application/json" },
+    body: JSON.stringify({ question: "x".repeat(5000) })
+  });
+  const response = await worker.fetch(req, { PORTWAY_AGENT_ENABLED: "true", ALLOWED_ORIGINS: "http://localhost:8788", STAGING_PREVIEW_TOKEN: "test-token", KNOWLEDGE_DB: {} }, {});
+  assert.equal(response.status, 413);
+});
+test("preview rejects non-JSON requests", async () => {
+  const req = new Request("https://portway-si-policy-staging.example.com/api/agent/preview", {
+    method: "POST", headers: { Origin: "http://localhost:8788", Authorization: "Bearer test-token", "Content-Type": "text/plain" },
+    body: "VGM"
+  });
+  const response = await worker.fetch(req, { PORTWAY_AGENT_ENABLED: "true", ALLOWED_ORIGINS: "http://localhost:8788", STAGING_PREVIEW_TOKEN: "test-token", KNOWLEDGE_DB: {} }, {});
+  assert.equal(response.status, 415);
+});
