@@ -12,9 +12,10 @@ binding = "AI"
 
 
 # STAGING-ONLY config. The Worker name differs from production.
-# Run only after explicit staging deployment approval.
-[triggers]
-crons = ["0 */6 * * *"]
+# Staging test: do not enable scheduled triggers until ingestion is reviewed.
+# Intended future schedule: 0 */6 * * * (every 360 minutes UTC).
+# [triggers]
+# crons = ["0 */6 * * *"]
 
 # Provision a new isolated D1 database and replace the placeholder before enabling.
 [[d1_databases]]
