@@ -469,6 +469,11 @@ async function handleKnowledge(request, env, headers, url) {
 }
 
 export default {
+  // Staging-safe scheduled entry point. No external requests, D1 writes or AI calls.
+  // Enable ingestion only after a separate review, tests and explicit approval.
+  async scheduled(event, env, ctx) {
+    console.log("Scheduled staging check (no-op); cron:", event.cron);
+  },
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
     if (request.method === "GET" && (url.pathname === "/" || url.pathname === "/api/status")) {
