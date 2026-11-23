@@ -15,9 +15,16 @@ export default {
     if (!origin || !allowed.includes(origin)) return json({ error: "origin_not_allowed" }, 403);
     if (!env.STAGING_PREVIEW_TOKEN || request.headers.get("Authorization") !== "Bearer " + env.STAGING_PREVIEW_TOKEN) return json({ error: "unauthorized" }, 401);
     if (!env.KNOWLEDGE_DB) return json({ error: "staging_d1_unavailable" }, 503);
-    if (Number(request.headers.get("content-length") || 0) > 4096) return json({ error: "payload_too_large" }, 413);
+    const contentType = request.headers.get("content-type") || "";
+    if (!/^application\/json(?:\s*;|\s*$)/i.test(contentType)) return json({ error: "unsupported_media_type" }, 415);
+    const declaredLength = Number(request.headers.get("content-length") || 0);
+    if (!Number.isFinite(declaredLength) || declaredLength > 4096) return json({ error: "payload_too_large" }, 413);
     let input;
-    try { input = await request.json(); } catch { return json({ error: "invalid_json" }, 400); }
+    try {
+      const raw = await request.text();
+      if (new TextEncoder().encode(raw).length > 4096) return json({ error: "payload_too_large" }, 413);
+      input = JSON.parse(raw);
+    } catch { return json({ error: "invalid_json" }, 400); }
     if (!input || typeof input.question !== "string" || !input.question.trim() || input.question.length > 1000) return json({ error: "invalid_question" }, 400);
     try {
       const result = await runReadOnlyResearch(input.question, createApprovedRetrieval(env.KNOWLEDGE_DB));
