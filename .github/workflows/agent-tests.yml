@@ -1,0 +1,33 @@
+name: PortWay SI isolated agent tests
+on:
+  pull_request:
+    paths:
+      - 'src/**'
+      - 'tests/**'
+      - 'CLAUDE.md'
+      - 'wrangler.staging.toml'
+      - '.github/workflows/agent-tests.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Syntax check
+        run: |
+          node --check worker.js
+          node --check src/agents/orchestrator.mjs
+          node --check src/mcp/read-only-gateway.mjs
+          node --check src/memory/approved-retrieval.mjs
+      - name: Offline tests (no Cloudflare credentials)
+        run: node --test tests/*.test.mjs

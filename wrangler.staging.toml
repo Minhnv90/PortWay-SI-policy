@@ -1,0 +1,23 @@
+# Isolated staging configuration — NOT production.
+# Never deploy without verifying the target Cloudflare account and separate resources.
+name = "portway-si-policy-staging"
+main = "staging-worker.mjs"
+compatibility_date = "2026-11-21"
+
+[vars]
+ALLOWED_ORIGINS = "http://localhost:8788"
+AI_MODEL = "@cf/google/gemma-4-26b-a4b-it"
+PORTWAY_AGENT_ENABLED = "false"
+PORTWAY_MCP_ENABLED = "false"
+PORTWAY_MEMORY_WRITE_ENABLED = "false"
+
+[ai]
+binding = "AI"
+
+# User-confirmed staging D1 identifier. Verify it is not used by production before remote actions.
+[[d1_databases]]
+binding = "KNOWLEDGE_DB"
+database_name = "portway-si-knowledge-staging"
+database_id = "63a484b4-ab0f-4f9f-a299-78fca28f6755"
+
+# Never copy production credentials or data. No remote migration or deploy authorized.
