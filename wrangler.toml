@@ -11,13 +11,12 @@ AI_MODEL = "@cf/google/gemma-4-26b-a4b-it"
 binding = "AI"
 
 # STAGING PREPARATION ONLY. Do not deploy this branch to production.
-# Cron schedule is UTC: 00:00, 06:00, 12:00, 18:00.
-# The scheduled handler is currently a safe no-op until a vetted ingestion pipeline is approved.
-[triggers]
-crons = ["0 */6 * * *"]
+# Cron is disabled during AI/D1 smoke tests; scheduled ingestion is not implemented.
+# Future UTC schedule: 0 */6 * * * (every 360 minutes).
+# [triggers]
+# crons = ["0 */6 * * *"]
 
-# D1 staging binding template: create a NEW staging database first.
-# Never reuse a production database_id. Uncomment only after assigning its real ID.
+# Existing isolated staging D1 database; never replace with a production database ID.
 [[d1_databases]]
 binding = "KNOWLEDGE_DB"
 database_name = "portway-si-staging"
