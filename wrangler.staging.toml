@@ -14,6 +14,10 @@ PORTWAY_MEMORY_WRITE_ENABLED = "false"
 [ai]
 binding = "AI"
 
-# Deliberately no production D1 binding.
-# Add a NEW staging-only KNOWLEDGE_DB database ID after owner verifies isolation.
-# Do not copy production credentials or data.
+# User-confirmed staging D1 identifier. Verify it is not used by production before remote actions.
+[[d1_databases]]
+binding = "KNOWLEDGE_DB"
+database_name = "portway-si-knowledge-staging"
+database_id = "63a484b4-ab0f-4f9f-a299-78fca28f6755"
+
+# Never copy production credentials or data. No remote migration or deploy authorized.
