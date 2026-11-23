@@ -9,39 +9,22 @@ This repository now includes an independent Cloudflare D1 schema and Worker endp
 - User-submitted evidence remains unverified until reviewed.
 - Keep source provenance, status, counter-evidence, unknowns and last-checked date with each record.
 
-## Create and migrate the database
-From this repository directory:
+## Create and migrate the STAGING database
+
+**Do not run against production.** First authenticate to your own Cloudflare account locally; never paste a token into GitHub or chat. From the `staging-config` checkout:
 
 ```bash
-npx wrangler d1 create portway-si-knowledge
+npx wrangler d1 create portway-si-staging
 ```
-Copy the returned database_id into the D1 binding in `wrangler.toml` (uncomment the example binding and replace the placeholder). Apply the schema:
+
+Copy the returned database ID into the commented `[[d1_databases]]` block in `wrangler.toml`, set `binding = "KNOWLEDGE_DB"`, and uncomment that block. Before running any remote operation, confirm that the ID is for the newly created **staging** database. The migration SQL is in `migrations/0001_knowledge.sql`.
 
 ```bash
-npx wrangler d1 execute portway-si-knowledge --remote --file=./migrations/0001_knowledge.sql
+# Only after confirming the isolated staging database ID and approval:
+npx wrangler d1 execute portway-si-staging --remote --file=./migrations/0001_knowledge.sql
 ```
 
-Add this binding to `wrangler.toml`:
-
-```toml
-[[d1_databases]]
-binding = "KNOWLEDGE_DB"
-database_name = "portway-si-knowledge"
-database_id = "YOUR_D1_DATABASE_ID"
-```
-
-## Configure admin ingestion
-Generate a long random secret and set it without committing it:
-
-```bash
-npx wrangler secret put KNOWLEDGE_ADMIN_TOKEN
-```
-
-Deploy after binding D1 and setting the secret:
-
-```bash
-npx wrangler deploy
-```
+Create a separate staging `KNOWLEDGE_ADMIN_TOKEN` secret if an admin write endpoint is tested. No token or patient data should be committed to GitHub. The staging Worker must have a **different name** and separate D1 from production. Do not run bare `wrangler deploy` from this repository until a distinct staging configuration and explicit deployment approval are in place.
 
 ## API
 
