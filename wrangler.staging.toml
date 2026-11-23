@@ -1,7 +1,7 @@
 # Isolated staging configuration — NOT production.
 # Never deploy without verifying the target Cloudflare account and separate resources.
 name = "portway-si-policy-staging"
-main = "worker.js"
+main = "staging-worker.mjs"
 compatibility_date = "2026-11-21"
 
 [vars]
