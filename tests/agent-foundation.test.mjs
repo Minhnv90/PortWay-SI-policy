@@ -35,3 +35,19 @@ test("D1 retrieval binds parameters and requires approved records", async () => 
   assert.match(sql, /approval_status = 'approved'/);
   assert.deepEqual(binds, ["record-1"]);
 });
+
+import { runReadOnlyResearch } from "../src/agents/read-only-pipeline.mjs";
+
+test("integrated read-only pipeline returns sourced metadata without writing", async () => {
+  let calls = 0;
+  const adapters = { searchApproved: async () => {
+    calls += 1;
+    return [{ id: "imo-vgm", title: "IMO VGM", source_url: "https://www.imo.org/example", last_checked_at: "2026-11-22", evidence_status: "verified_primary" }];
+  }};
+  const result = await runReadOnlyResearch("VGM container", adapters);
+  assert.equal(calls, 1);
+  assert.equal(result.complete, true);
+  assert.equal(result.sources.length, 1);
+  assert.equal(result.verification, "metadata_only");
+  assert.equal(result.production_ready, false);
+});
