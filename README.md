@@ -65,3 +65,8 @@ See [`KNOWLEDGE_ENGINE.md`](./KNOWLEDGE_ENGINE.md) for the separate Cloudflare D
 ## Separate staging Worker configuration
 
 Use `wrangler.staging.toml` for staging only. It has a Worker name distinct from production. The D1 block remains commented until the real staging database ID is available. **Do not deploy yet.** After explicit staging deployment approval, use the explicit `--config wrangler.staging.toml` option and verify the target account, Worker name, routes, bindings and secrets before any deployment.
+
+
+## Practical real-world training (staging)
+
+See [PRACTICAL_PLAYBOOK.md](./PRACTICAL_PLAYBOOK.md) for operational drills, evidence checks, synthetic safety cases, review gates and human sign-off. This is **reference documentation only**: it is not yet wired into Worker prompts or D1, and does not mean the AI has learned or passed those cases. Use human review and real model evaluation before release.
