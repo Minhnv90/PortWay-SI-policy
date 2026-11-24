@@ -1,0 +1,12 @@
+name = "portway-si-staging"
+main = "worker.js"
+compatibility_date = "2026-11-21"
+[vars]
+ALLOWED_ORIGINS = "http://localhost:8788,http://localhost:3000"
+AI_MODEL = "@cf/google/gemma-4-26b-a4b-it"
+[ai]
+binding = "AI"
+[[d1_databases]]
+binding = "KNOWLEDGE_DB"
+database_name = "portway-si-knowledge-staging"
+database_id = "63a484b4-ab0f-4f9f-a299-78fca28f6755"
