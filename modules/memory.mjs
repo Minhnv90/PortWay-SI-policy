@@ -23,7 +23,7 @@ export async function memoryContext(request,env,enabled,fetchIdentity=fetch){
  const authorization=request.headers.get("Authorization")||"";
  if(!authorization.startsWith("Bearer ")||authorization.length<20)return "";
  try{
- const res=await fetchIdentity("https://api.minepi.com/v2/me",{headers:{Authorization:authorization,Accept:"application/json"},signal:AbortSignal.timeout(10000)});
+ const res=await fetchIdentity("https://api.minepi.com/v2/me",{headers:{Authorization:authorization,Accept:"application/json"},signal:AbortSignal.timeout(10000),redirect:"error"});
  if(!res.ok)return "";
  const data=await res.json();
  const {preferences}=await preferenceMemory(env,(data.user||data).uid,{action:"read"});
