@@ -480,6 +480,27 @@ export default {
     const headers = cors(request, env);
     if (!headers) return new Response("Origin not allowed", { status: 403 });
     if (request.method === "OPTIONS") return new Response(null, { status: 204, headers });
+    if (request.method === "GET" && url.pathname === "/api/diagnostics/storage") {
+      const h = {...headers, "Cache-Control":"no-store"};
+      if (!env.MCP_READ_TOKEN || request.headers.get("Authorization") !== "Bearer " + env.MCP_READ_TOKEN)
+        return Response.json({error:"Unauthorized"}, {status:401,headers:h});
+      const checks = {d1:"missing",kv:"missing"};
+      let ragEligible = null;
+      if (env.KNOWLEDGE_DB) {
+        try {
+          const result = await env.KNOWLEDGE_DB.prepare("SELECT COUNT(*) AS total FROM " + KNOWLEDGE_TABLE + " WHERE approval_status = 'approved' AND source_url LIKE 'https://%' AND trim(body) <> ''").first();
+          ragEligible = Number(result.total);
+          checks.d1 = Number.isSafeInteger(ragEligible) && ragEligible >= 0 ? "ok" : "failed";
+        } catch { checks.d1 = "failed"; }
+      }
+      if (env.MEMORY_KV) {
+        try { await env.MEMORY_KV.get("__diagnostics_read_only__"); checks.kv = "read_ok"; }
+        catch { checks.kv = "failed"; }
+      }
+      const ok = checks.d1 === "ok" && checks.kv === "read_ok";
+      return Response.json({ok,checks,rag_eligible:ragEligible,kv_write_tested:false,ai_tested:false},{status:ok?200:503,headers:h});
+    }
+
     if (request.method === "GET" && url.pathname === "/api/port-weather") return handlePortWeather(url, headers, ctx);
     if (url.pathname === "/api/memory" && request.method === "POST") {
       const h={...headers,"Cache-Control":"no-store"};
