@@ -543,7 +543,7 @@ export default {
       const authorization = request.headers.get("Authorization") || "";
       if (!authorization.startsWith("Bearer ") || authorization.length < 20) return Response.json({ error: "Pi access token is required." }, { status: 401, headers });
       try {
-        const piResponse = await fetch("https://api.minepi.com/v2/me", { headers: { "Authorization": authorization, "Accept": "application/json" } });
+        const piResponse = await fetch("https://api.minepi.com/v2/me", { headers: { "Authorization": authorization, "Accept": "application/json" }, signal: AbortSignal.timeout(10000), redirect: "error" });
         if (!piResponse.ok) return Response.json({ error: "Pi authentication could not be verified." }, { status: 401, headers });
         const payload = await piResponse.json();
         const user = payload?.user || payload;
