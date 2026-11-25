@@ -9,3 +9,6 @@ test("list only read tool",async()=>assert.deepEqual((await (await call("tools/l
 test("reject write",async()=>assert.equal((await (await call("tools/call",{name:"write",arguments:{query:"abc"}})).json()).error.code,-32602));
 test("exclude drafts",async()=>{const x=await (await call("tools/call",{name:"search_knowledge",arguments:{query:"abc"}})).json();assert.deepEqual(JSON.parse(x.result.content[0].text).records.map(r=>r.title),["Approved"]);});
 test("reject empty query",async()=>assert.equal((await (await call("tools/call",{name:"search_knowledge",arguments:{query:" "}})).json()).error.code,-32602));
+
+test("reject foreign origin",async()=>assert.equal((await knowledgeMcp(new Request("https://example.org/mcp",{method:"POST",headers:{Authorization:"Bearer test-only",Origin:"https://foreign.example"},body:"{}"}),{...env,ALLOWED_ORIGINS:"https://allowed.example"},search)).status,403));
+test("reject oversized payload",async()=>assert.equal((await knowledgeMcp(new Request("https://example.org/mcp",{method:"POST",headers:{Authorization:"Bearer test-only"},body:"x".repeat(16385)}),env,search)).status,413));
