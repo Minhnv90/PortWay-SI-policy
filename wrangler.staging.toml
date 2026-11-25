@@ -1,4 +1,4 @@
-name = "portway-si-policy-staging"
+name = "portway-si-staging"
 main = "worker.js"
 compatibility_date = "2026-11-21"
 
