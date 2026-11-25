@@ -1,3 +1,4 @@
+import { preferenceMemory } from "./modules/memory.mjs";
 import { knowledgeMcp } from "./modules/knowledge-mcp.mjs";
 const localPortWayKnowledge = [
   {
@@ -480,6 +481,22 @@ export default {
     if (!headers) return new Response("Origin not allowed", { status: 403 });
     if (request.method === "OPTIONS") return new Response(null, { status: 204, headers });
     if (request.method === "GET" && url.pathname === "/api/port-weather") return handlePortWeather(url, headers, ctx);
+    if (url.pathname === "/api/memory" && request.method === "POST") {
+      const h={...headers,"Cache-Control":"no-store"};
+      const authorization=request.headers.get("Authorization")||"";
+      if(!authorization.startsWith("Bearer ")||authorization.length<20)return Response.json({error:"Authentication required"},{status:401,headers:h});
+      if(!env.MEMORY_KV)return Response.json({error:"Memory unavailable"},{status:503,headers:h});
+      let uid;
+      try {
+        const p=await fetch("https://api.minepi.com/v2/me",{headers:{Authorization:authorization,Accept:"application/json"},signal:AbortSignal.timeout(10000)});
+        if(!p.ok)return Response.json({error:"Authentication failed"},{status:401,headers:h});
+        const data=await p.json();uid=(data.user||data).uid;
+        if(typeof uid!=="string"||!uid||uid.length>256)return Response.json({error:"Invalid identity"},{status:401,headers:h});
+      }catch{return Response.json({error:"Identity service unavailable"},{status:502,headers:h});}
+      let input;try{input=await request.json();}catch{return Response.json({error:"Invalid JSON"},{status:400,headers:h});}
+      try{return Response.json(await preferenceMemory(env,uid,input),{headers:h});}
+      catch{return Response.json({error:"Memory request rejected or unavailable"},{status:400,headers:h});}
+    }
     const knowledgeResponse = await handleKnowledge(request, env, headers, url);
     if (knowledgeResponse) return knowledgeResponse;
     if (url.pathname === "/api/pi/verify" && request.method === "POST") {
