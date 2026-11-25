@@ -3,6 +3,7 @@ main = "worker.js"
 compatibility_date = "2026-11-21"
 
 [vars]
+STAGING_DIAGNOSTICS = "true"
 ALLOWED_ORIGINS = "https://minhnv90.github.io,https://portwaysix5564.pinet.com"
 AI_MODEL = "@cf/google/gemma-4-26b-a4b-it"
 
