@@ -1,0 +1,11 @@
+import {test} from "node:test";
+import assert from "node:assert/strict";
+import {knowledgeMcp} from "../modules/knowledge-mcp.mjs";
+const env={MCP_READ_TOKEN:"test-only",KNOWLEDGE_DB:{}};
+const search=async()=>[{title:"Approved",approval_status:"approved",source_url:"https://example.org"},{title:"Draft",approval_status:"draft",source_url:"https://example.org"}];
+const call=(method,params={},token="test-only")=>knowledgeMcp(new Request("https://example.org/mcp",{method:"POST",headers:{Authorization:"Bearer "+token},body:JSON.stringify({jsonrpc:"2.0",id:1,method,params})}),env,search);
+test("reject unauthorized",async()=>assert.equal((await call("tools/list",{},"wrong")).status,401));
+test("list only read tool",async()=>assert.deepEqual((await (await call("tools/list")).json()).result.tools.map(x=>x.name),["search_knowledge"]));
+test("reject write",async()=>assert.equal((await (await call("tools/call",{name:"write",arguments:{query:"abc"}})).json()).error.code,-32602));
+test("exclude drafts",async()=>{const x=await (await call("tools/call",{name:"search_knowledge",arguments:{query:"abc"}})).json();assert.deepEqual(JSON.parse(x.result.content[0].text).records.map(r=>r.title),["Approved"]);});
+test("reject empty query",async()=>assert.equal((await (await call("tools/call",{name:"search_knowledge",arguments:{query:" "}})).json()).error.code,-32602));
