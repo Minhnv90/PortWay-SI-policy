@@ -2,7 +2,8 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {readFile} from "node:fs/promises";
 const source=await readFile(new URL("../worker.js",import.meta.url),"utf8");
-const worker=(await import("data:text/javascript;base64,"+Buffer.from(source).toString("base64"))).default;
+const resolved = source.replace(/(["'])(\.\/modules\/[^"']+)\1/g, (_,q,p)=>q+new URL("../"+p.slice(2),import.meta.url).href+q);
+const worker=(await import("data:text/javascript;base64,"+Buffer.from(resolved).toString("base64"))).default;
 for(const [name,result,status,code] of [
 ["choices",{choices:[{message:{content:"OK"}}]},200,null],
 ["legacy fallback",{choices:[{message:{content:" "}}],response:"OK"},200,null],
