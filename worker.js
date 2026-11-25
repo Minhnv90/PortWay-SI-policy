@@ -528,7 +528,7 @@ export default {
       if(!env.MEMORY_KV)return Response.json({error:"Memory unavailable"},{status:503,headers:h});
       let uid;
       try {
-        const p=await fetch("https://api.minepi.com/v2/me",{headers:{Authorization:authorization,Accept:"application/json"},signal:AbortSignal.timeout(10000)});
+        const p=await fetch("https://api.minepi.com/v2/me",{headers:{Authorization:authorization,Accept:"application/json"},signal:AbortSignal.timeout(10000),redirect:"error"});
         if(!p.ok)return Response.json({error:"Authentication failed"},{status:401,headers:h});
         const data=await p.json();uid=(data.user||data).uid;
         if(typeof uid!=="string"||!uid||uid.length>256)return Response.json({error:"Invalid identity"},{status:401,headers:h});
