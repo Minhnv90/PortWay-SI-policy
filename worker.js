@@ -1,3 +1,4 @@
+import { knowledgeMcp } from "./modules/knowledge-mcp.mjs";
 const localPortWayKnowledge = [
   {
     "id": "cmit-overview",
@@ -471,6 +472,7 @@ async function handleKnowledge(request, env, headers, url) {
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
+    if (url.pathname === "/mcp") return knowledgeMcp(request, env, searchKnowledge);
     if (request.method === "GET" && (url.pathname === "/" || url.pathname === "/api/status")) {
       return Response.json({ service: "PortWay SI", status: "online", release: "business-weather-knowledge-v4", ai_configured: Boolean(typeof env.AI?.run === "function" && env.AI_MODEL), missing_config: [typeof env.AI?.run === "function" ? null : "AI", env.AI_MODEL ? null : "AI_MODEL"].filter(Boolean), note: "Status only; AI response is not tested." }, { headers: { "Cache-Control": "no-store", "Access-Control-Allow-Origin": "*" } });
     }
