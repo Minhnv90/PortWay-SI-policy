@@ -1,0 +1,11 @@
+import {test} from "node:test";
+import assert from "node:assert/strict";
+import {memoryContext} from "../modules/memory.mjs";
+const req=new Request("https://example.test",{headers:{Authorization:"Bearer test-token-123456"}});
+const env={MEMORY_KV:{get:async()=>({language:"en",medical_record:"private",grade:"5"})}};
+const identity=async()=>Response.json({uid:"test-user"});
+test("opt out never calls identity",async()=>assert.equal(await memoryContext(req,env,false,()=>{throw Error("unexpected")}),""));
+test("verified preferences only",async()=>{const x=await memoryContext(req,env,true,identity);assert.match(x,/"language":"en"/);assert.doesNotMatch(x,/private|medical_record|grade/);});
+test("denied identity excludes memory",async()=>assert.equal(await memoryContext(req,env,true,async()=>new Response(null,{status:401})),""));
+test("missing KV degrades gracefully",async()=>assert.equal(await memoryContext(req,{},true,identity),""));
+test("missing bearer excludes memory",async()=>assert.equal(await memoryContext(new Request("https://example.test"),env,true,identity),""));

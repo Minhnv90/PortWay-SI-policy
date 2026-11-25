@@ -1,3 +1,5 @@
+import { preferenceMemory, memoryContext } from "./modules/memory.mjs";
+import { knowledgeMcp } from "./modules/knowledge-mcp.mjs";
 const localPortWayKnowledge = [
   {
     "id": "cmit-overview",
@@ -423,7 +425,7 @@ async function searchKnowledge(env, question, limit = 5) {
   const terms = [...new Set((question.toLowerCase().match(/[\p{L}\p{N}]{3,}/gu) || []).slice(0, 8))];
   if (!terms.length) return [];
   const clauses = terms.map(() => "(title LIKE ? OR category LIKE ? OR geography LIKE ? OR entities LIKE ? OR claim LIKE ? OR summary LIKE ? OR body LIKE ? OR tags LIKE ?)");
-  const sql = "SELECT * FROM " + KNOWLEDGE_TABLE + " WHERE approval_status = 'approved' AND (" + clauses.join(" OR ") + ") ORDER BY modified_at DESC LIMIT ?";
+  const sql = "SELECT * FROM " + KNOWLEDGE_TABLE + " WHERE approval_status = 'approved' AND source_url LIKE 'https://%' AND trim(body) <> '' AND (" + clauses.join(" OR ") + ") ORDER BY modified_at DESC LIMIT ?";
   const binds = [];
   for (const term of terms) { const p = "%" + term + "%"; binds.push(p,p,p,p,p,p,p,p); }
   binds.push(Math.max(1, Math.min(8, limit)));
@@ -471,20 +473,77 @@ async function handleKnowledge(request, env, headers, url) {
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
+    if (url.pathname === "/mcp") return knowledgeMcp(request, env, searchKnowledge);
     if (request.method === "GET" && (url.pathname === "/" || url.pathname === "/api/status")) {
-      return Response.json({ service: "PortWay SI", status: "online", release: "business-weather-knowledge-v4", ai_configured: Boolean(typeof env.AI?.run === "function" && env.AI_MODEL), missing_config: [typeof env.AI?.run === "function" ? null : "AI", env.AI_MODEL ? null : "AI_MODEL"].filter(Boolean), note: "Status only; AI response is not tested." }, { headers: { "Cache-Control": "no-store", "Access-Control-Allow-Origin": "*" } });
+      return Response.json({ service: "PortWay SI", status: "online", release: "business-weather-knowledge-v4", ai_configured: Boolean(typeof env.AI?.run === "function" && env.AI_MODEL), missing_config: [typeof env.AI?.run === "function" ? null : "AI", env.AI_MODEL ? null : "AI_MODEL"].filter(Boolean), memory_binding_configured: Boolean(env.MEMORY_KV), memory_status: { binding: "MEMORY_KV", state: env.MEMORY_KV ? "configured_unverified" : "missing", retention_days: 30, consent_required: true, identity_required: true }, knowledge_binding_configured: Boolean(env.KNOWLEDGE_DB), knowledge_status: { binding: "KNOWLEDGE_DB", state: env.KNOWLEDGE_DB ? "configured_unverified" : "missing", table: KNOWLEDGE_TABLE, approved_only: true }, note: "Binding presence only; AI, KV and D1 operations are not tested." }, { headers: { "Cache-Control": "no-store", "Access-Control-Allow-Origin": "*" } });
     }
     const headers = cors(request, env);
     if (!headers) return new Response("Origin not allowed", { status: 403 });
     if (request.method === "OPTIONS") return new Response(null, { status: 204, headers });
+    if (request.method === "POST" && url.pathname === "/api/diagnostics/kv") {
+      const h = {...headers,"Cache-Control":"no-store"};
+      if (!env.MCP_READ_TOKEN || request.headers.get("Authorization") !== "Bearer " + env.MCP_READ_TOKEN)
+        return Response.json({error:"Unauthorized"},{status:401,headers:h});
+      if (env.STAGING_DIAGNOSTICS !== "true" || !env.MEMORY_KV)
+        return Response.json({error:"Staging diagnostics unavailable"},{status:503,headers:h});
+      const key = "__diagnostics__:" + crypto.randomUUID();
+      const value = crypto.randomUUID();
+      const checks = {write:false,read:false,delete:false};
+      try {
+        await env.MEMORY_KV.put(key,value,{expirationTtl:120});
+        checks.write = true;
+        checks.read = (await env.MEMORY_KV.get(key)) === value;
+      } catch {} finally {
+        try { await env.MEMORY_KV.delete(key); checks.delete = true; } catch {}
+      }
+      const ok = Object.values(checks).every(Boolean);
+      return Response.json({ok,checks,delete_visibility_verified:false},{status:ok?200:503,headers:h});
+    }
+    if (request.method === "GET" && url.pathname === "/api/diagnostics/storage") {
+      const h = {...headers, "Cache-Control":"no-store"};
+      if (!env.MCP_READ_TOKEN || request.headers.get("Authorization") !== "Bearer " + env.MCP_READ_TOKEN)
+        return Response.json({error:"Unauthorized"}, {status:401,headers:h});
+      const checks = {d1:"missing",kv:"missing"};
+      let ragEligible = null;
+      if (env.KNOWLEDGE_DB) {
+        try {
+          const result = await env.KNOWLEDGE_DB.prepare("SELECT COUNT(*) AS total FROM " + KNOWLEDGE_TABLE + " WHERE approval_status = 'approved' AND source_url LIKE 'https://%' AND trim(body) <> ''").first();
+          ragEligible = Number(result.total);
+          checks.d1 = Number.isSafeInteger(ragEligible) && ragEligible >= 0 ? "ok" : "failed";
+        } catch { checks.d1 = "failed"; }
+      }
+      if (env.MEMORY_KV) {
+        try { await env.MEMORY_KV.get("__diagnostics_read_only__"); checks.kv = "read_ok"; }
+        catch { checks.kv = "failed"; }
+      }
+      const ok = checks.d1 === "ok" && checks.kv === "read_ok";
+      return Response.json({ok,checks,rag_eligible:ragEligible,kv_write_tested:false,ai_tested:false},{status:ok?200:503,headers:h});
+    }
+
     if (request.method === "GET" && url.pathname === "/api/port-weather") return handlePortWeather(url, headers, ctx);
+    if (url.pathname === "/api/memory" && request.method === "POST") {
+      const h={...headers,"Cache-Control":"no-store"};
+      const authorization=request.headers.get("Authorization")||"";
+      if(!authorization.startsWith("Bearer ")||authorization.length<20)return Response.json({error:"Authentication required"},{status:401,headers:h});
+      if(!env.MEMORY_KV)return Response.json({error:"Memory unavailable"},{status:503,headers:h});
+      let uid;
+      try {
+        const p=await fetch("https://api.minepi.com/v2/me",{headers:{Authorization:authorization,Accept:"application/json"},signal:AbortSignal.timeout(10000),redirect:"error"});
+        if(!p.ok)return Response.json({error:"Authentication failed"},{status:401,headers:h});
+        const data=await p.json();uid=(data.user||data).uid;
+        if(typeof uid!=="string"||!uid||uid.length>256)return Response.json({error:"Invalid identity"},{status:401,headers:h});
+      }catch{return Response.json({error:"Identity service unavailable"},{status:502,headers:h});}
+      let input;try{input=await request.json();}catch{return Response.json({error:"Invalid JSON"},{status:400,headers:h});}
+      try{return Response.json(await preferenceMemory(env,uid,input),{headers:h});}
+      catch{return Response.json({error:"Memory request rejected or unavailable"},{status:400,headers:h});}
+    }
     const knowledgeResponse = await handleKnowledge(request, env, headers, url);
     if (knowledgeResponse) return knowledgeResponse;
     if (url.pathname === "/api/pi/verify" && request.method === "POST") {
       const authorization = request.headers.get("Authorization") || "";
       if (!authorization.startsWith("Bearer ") || authorization.length < 20) return Response.json({ error: "Pi access token is required." }, { status: 401, headers });
       try {
-        const piResponse = await fetch("https://api.minepi.com/v2/me", { headers: { "Authorization": authorization, "Accept": "application/json" } });
+        const piResponse = await fetch("https://api.minepi.com/v2/me", { headers: { "Authorization": authorization, "Accept": "application/json" }, signal: AbortSignal.timeout(10000), redirect: "error" });
         if (!piResponse.ok) return Response.json({ error: "Pi authentication could not be verified." }, { status: 401, headers });
         const payload = await piResponse.json();
         const user = payload?.user || payload;
@@ -525,15 +584,19 @@ export default {
         max_completion_tokens: 780,
         chat_template_kwargs: { enable_thinking: false },
         store: false,
-        messages: [{ role: "system", content: system + curatedContext + knowledgeContext }, { role: "user", content: user }]
+        messages: [{ role: "system", content: system + curatedContext + knowledgeContext + await memoryContext(request, env, body.use_memory) }, { role: "user", content: user }]
       });
-      const answer = data?.choices?.[0]?.message?.content ?? data?.response;
-      if (typeof answer !== "string" || !answer.trim()) return Response.json({ error: "Empty AI response." }, { status: 502, headers });
+      const primary = data?.choices?.[0]?.message?.content;
+      const answer = [primary, data?.response].find(value => typeof value === "string" && value.trim());
+      if (!answer) {
+        const code = data?.choices?.[0]?.finish_reason === "length" ? "AI_OUTPUT_LIMIT" : "AI_EMPTY_RESPONSE";
+        return Response.json({ error: "Empty AI response.", code }, { status: 502, headers });
+      }
       const usage = tokenUsage(data?.usage);
       const costEstimate = estimateAIListPrice(env.AI_MODEL, usage);
       return Response.json({ answer: answer.trim(), usage, cost_estimate: costEstimate, curated_sources: curated.map(({id,title,org,url,checked,scope}) => ({id,title,org,url,checked,scope})), evidence_count: evidence.length, knowledge_count: knowledge.length, knowledge_sources: knowledge.map(r => ({ title: r.title, geography: r.geography, evidence_status: r.evidence_status, organization: r.source_organization, url: r.source_url, last_checked_at: r.last_checked_at })) }, { headers });
     } catch {
-      return Response.json({ error: "Could not reach AI provider." }, { status: 502, headers });
+      return Response.json({ error: "Could not reach AI provider.", code: "AI_PROVIDER_ERROR" }, { status: 502, headers });
     }
   }
 };
