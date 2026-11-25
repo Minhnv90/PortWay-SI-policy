@@ -527,13 +527,17 @@ export default {
         store: false,
         messages: [{ role: "system", content: system + curatedContext + knowledgeContext }, { role: "user", content: user }]
       });
-      const answer = data?.choices?.[0]?.message?.content ?? data?.response;
-      if (typeof answer !== "string" || !answer.trim()) return Response.json({ error: "Empty AI response." }, { status: 502, headers });
+      const primary = data?.choices?.[0]?.message?.content;
+      const answer = [primary, data?.response].find(value => typeof value === "string" && value.trim());
+      if (!answer) {
+        const code = data?.choices?.[0]?.finish_reason === "length" ? "AI_OUTPUT_LIMIT" : "AI_EMPTY_RESPONSE";
+        return Response.json({ error: "Empty AI response.", code }, { status: 502, headers });
+      }
       const usage = tokenUsage(data?.usage);
       const costEstimate = estimateAIListPrice(env.AI_MODEL, usage);
       return Response.json({ answer: answer.trim(), usage, cost_estimate: costEstimate, curated_sources: curated.map(({id,title,org,url,checked,scope}) => ({id,title,org,url,checked,scope})), evidence_count: evidence.length, knowledge_count: knowledge.length, knowledge_sources: knowledge.map(r => ({ title: r.title, geography: r.geography, evidence_status: r.evidence_status, organization: r.source_organization, url: r.source_url, last_checked_at: r.last_checked_at })) }, { headers });
     } catch {
-      return Response.json({ error: "Could not reach AI provider." }, { status: 502, headers });
+      return Response.json({ error: "Could not reach AI provider.", code: "AI_PROVIDER_ERROR" }, { status: 502, headers });
     }
   }
 };
