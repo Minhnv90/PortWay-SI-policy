@@ -480,6 +480,25 @@ export default {
     const headers = cors(request, env);
     if (!headers) return new Response("Origin not allowed", { status: 403 });
     if (request.method === "OPTIONS") return new Response(null, { status: 204, headers });
+    if (request.method === "POST" && url.pathname === "/api/diagnostics/kv") {
+      const h = {...headers,"Cache-Control":"no-store"};
+      if (!env.MCP_READ_TOKEN || request.headers.get("Authorization") !== "Bearer " + env.MCP_READ_TOKEN)
+        return Response.json({error:"Unauthorized"},{status:401,headers:h});
+      if (env.STAGING_DIAGNOSTICS !== "true" || !env.MEMORY_KV)
+        return Response.json({error:"Staging diagnostics unavailable"},{status:503,headers:h});
+      const key = "__diagnostics__:" + crypto.randomUUID();
+      const value = crypto.randomUUID();
+      const checks = {write:false,read:false,delete:false};
+      try {
+        await env.MEMORY_KV.put(key,value,{expirationTtl:120});
+        checks.write = true;
+        checks.read = (await env.MEMORY_KV.get(key)) === value;
+      } catch {} finally {
+        try { await env.MEMORY_KV.delete(key); checks.delete = true; } catch {}
+      }
+      const ok = Object.values(checks).every(Boolean);
+      return Response.json({ok,checks,delete_visibility_verified:false},{status:ok?200:503,headers:h});
+    }
     if (request.method === "GET" && url.pathname === "/api/diagnostics/storage") {
       const h = {...headers, "Cache-Control":"no-store"};
       if (!env.MCP_READ_TOKEN || request.headers.get("Authorization") !== "Bearer " + env.MCP_READ_TOKEN)
