@@ -3,7 +3,9 @@ export async function knowledgeMcp(request, env, search) {
  const reply=(body,status=200)=>Response.json(body,{status,headers:{"Cache-Control":"no-store"}});
  if (!env.MCP_READ_TOKEN || request.headers.get("Authorization") !== "Bearer "+env.MCP_READ_TOKEN) return reply({error:"Unauthorized"},401);
  if(request.method!=="POST") return reply({error:"Method not allowed"},405);
- let p; try {p=JSON.parse(await request.text());} catch {return reply({jsonrpc:"2.0",id:null,error:{code:-32700,message:"Parse error"}});}
+ const origin=request.headers.get("Origin");
+ if(origin && !(env.ALLOWED_ORIGINS||"").split(",").map(x=>x.trim()).includes(origin)) return reply({error:"Origin not allowed"},403);
+ let p; try {const raw=await request.text(); if(new TextEncoder().encode(raw).length>16384)return reply({error:"Request too large"},413); p=JSON.parse(raw);} catch {return reply({jsonrpc:"2.0",id:null,error:{code:-32700,message:"Parse error"}});}
  const id=p?.id??null;
  const ok=result=>reply({jsonrpc:"2.0",id,result});
  const err=(code,message)=>reply({jsonrpc:"2.0",id,error:{code,message}});
