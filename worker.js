@@ -1,4 +1,4 @@
-import { preferenceMemory } from "./modules/memory.mjs";
+import { preferenceMemory, memoryContext } from "./modules/memory.mjs";
 import { knowledgeMcp } from "./modules/knowledge-mcp.mjs";
 const localPortWayKnowledge = [
   {
@@ -544,7 +544,7 @@ export default {
         max_completion_tokens: 780,
         chat_template_kwargs: { enable_thinking: false },
         store: false,
-        messages: [{ role: "system", content: system + curatedContext + knowledgeContext }, { role: "user", content: user }]
+        messages: [{ role: "system", content: system + curatedContext + knowledgeContext + await memoryContext(request, env, body.use_memory) }, { role: "user", content: user }]
       });
       const primary = data?.choices?.[0]?.message?.content;
       const answer = [primary, data?.response].find(value => typeof value === "string" && value.trim());
