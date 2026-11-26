@@ -1,0 +1,28 @@
+{
+  "topic": "Central bank digital money and tokenised settlement",
+  "records": [
+    "knowledge/drafts/snb-2026-15.json",
+    "knowledge/drafts/snb-financial-infrastructure-review.json"
+  ],
+  "classification": [
+    "CBDC",
+    "RWA",
+    "settlement",
+    "interoperability",
+    "governance"
+  ],
+  "workflow": [
+    "collect",
+    "verify",
+    "approve",
+    "test",
+    "accept",
+    "integrate"
+  ],
+  "status": "archived_pending_review",
+  "full_text_review": false,
+  "rag_enabled": false,
+  "personal_memory": false,
+  "rights": "Store references and independent summaries; verify reuse permissions before ingestion.",
+  "source_verification": "Recheck primary sources before approval"
+}
