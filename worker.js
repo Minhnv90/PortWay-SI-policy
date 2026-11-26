@@ -484,7 +484,7 @@ export default {
       const authorization = request.headers.get("Authorization") || "";
       if (!authorization.startsWith("Bearer ") || authorization.length < 20) return Response.json({ error: "Pi access token is required." }, { status: 401, headers });
       try {
-        const piResponse = await fetch("https://api.minepi.com/v2/me", { headers: { "Authorization": authorization, "Accept": "application/json" } });
+        const piResponse = await fetch("https://api.minepi.com/v2/me", { headers: { "Authorization": authorization, "Accept": "application/json" }, signal: AbortSignal.timeout(10000), redirect: "error" });
         if (!piResponse.ok) return Response.json({ error: "Pi authentication could not be verified." }, { status: 401, headers });
         const payload = await piResponse.json();
         const user = payload?.user || payload;
@@ -499,7 +499,7 @@ export default {
       return Response.json({ error: "AI service is not configured. Missing: " + [typeof env.AI?.run === "function" ? null : "AI", env.AI_MODEL ? null : "AI_MODEL"].filter(Boolean).join(", ") }, { status: 503, headers });
     }
     let body;
-    try { body = await request.json(); } catch {
+    try { body = await request.json(); if (!body || typeof body !== "object" || Array.isArray(body)) throw new TypeError("Expected JSON object"); } catch {
       return Response.json({ error: "Invalid JSON." }, { status: 400, headers });
     }
     const question = typeof body.question === "string" ? body.question.trim() : "";
