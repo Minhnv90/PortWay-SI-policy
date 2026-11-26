@@ -17,7 +17,7 @@ jobs:
           node-version: '22'
       - name: Verify source
         run: |
-          echo 'ce6761d95abe44e28bb9bd8d8c6e3490a2ae8adabe59b166e67095a1206c143f  frontend-source.zip' | sha256sum -c -
+          echo '6cfcf324b279abc927a0e97e87b3a4abb0344852402fb96c25f56fdfb4d6e24a  frontend-source.zip' | sha256sum -c -
           mkdir frontend-opennext
           unzip -q frontend-source.zip -d frontend-opennext
       - name: Package and dry run

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
-echo 'ce6761d95abe44e28bb9bd8d8c6e3490a2ae8adabe59b166e67095a1206c143f  frontend-source.zip' | sha256sum -c -
+echo '6cfcf324b279abc927a0e97e87b3a4abb0344852402fb96c25f56fdfb4d6e24a  frontend-source.zip' | sha256sum -c -
 mkdir -p frontend-opennext
 unzip -oq frontend-source.zip -d frontend-opennext
 cd frontend-opennext
