@@ -18,7 +18,7 @@ jobs:
       - name: Verify source
         run: |
           test -f frontend-source.zip || { echo "::error::PortWay original frontend-source.zip required"; exit 1; }
-          sha256sum frontend-source.zip
+          echo 'ce6761d95abe44e28bb9bd8d8c6e3490a2ae8adabe59b166e67095a1206c143f  frontend-source.zip' | sha256sum -c -
           mkdir frontend-build
           unzip -q frontend-source.zip -d frontend-build
           test -f frontend-build/package.json
