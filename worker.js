@@ -423,7 +423,7 @@ async function searchKnowledge(env, question, limit = 5) {
   const terms = [...new Set((question.toLowerCase().match(/[\p{L}\p{N}]{3,}/gu) || []).slice(0, 8))];
   if (!terms.length) return [];
   const clauses = terms.map(() => "(title LIKE ? OR category LIKE ? OR geography LIKE ? OR entities LIKE ? OR claim LIKE ? OR summary LIKE ? OR body LIKE ? OR tags LIKE ?)");
-  const sql = "SELECT * FROM " + KNOWLEDGE_TABLE + " WHERE approval_status = 'approved' AND (" + clauses.join(" OR ") + ") ORDER BY modified_at DESC LIMIT ?";
+  const sql = "SELECT * FROM " + KNOWLEDGE_TABLE + " WHERE approval_status = 'approved' AND source_url LIKE 'https://%' AND trim(body) <> '' AND (" + clauses.join(" OR ") + ") ORDER BY modified_at DESC LIMIT ?";
   const binds = [];
   for (const term of terms) { const p = "%" + term + "%"; binds.push(p,p,p,p,p,p,p,p); }
   binds.push(Math.max(1, Math.min(8, limit)));
