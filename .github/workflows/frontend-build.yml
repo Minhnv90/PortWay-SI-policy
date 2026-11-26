@@ -1,0 +1,33 @@
+name: PortWay frontend build
+on:
+  pull_request:
+  workflow_dispatch:
+  push:
+    branches: [staging/si-handover]
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify source
+        run: |
+          test -f frontend-source.zip || { echo "::error::PortWay original frontend-source.zip required"; exit 1; }
+          sha256sum frontend-source.zip
+          mkdir frontend-build
+          unzip -q frontend-source.zip -d frontend-build
+          test -f frontend-build/package.json
+          test -f frontend-build/pnpm-lock.yaml
+      - name: Build
+        working-directory: frontend-build
+        run: |
+          corepack enable
+          corepack prepare pnpm@9.15.9 --activate
+          pnpm install --frozen-lockfile
+          pnpm exec tsc --noEmit
+          pnpm build
