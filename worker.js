@@ -1,3 +1,4 @@
+import { preferenceMemory, verifiedUid } from "./modules/memory.mjs";
 const localPortWayKnowledge = [
   {
     "id": "cmit-overview",
@@ -494,6 +495,16 @@ export default {
       }
       const ok = checks.d1 === "ok" && checks.kv === "read_ok";
       return Response.json({ok,checks,rag_eligible:ragEligible,kv_write_tested:false,ai_tested:false},{status:ok?200:503,headers:{...headers,"Cache-Control":"no-store"}});
+    }
+    if (url.pathname === "/api/memory" && request.method === "POST") {
+      const uid = await verifiedUid(request);
+      const h = {...headers,"Cache-Control":"no-store"};
+      if (!uid) return Response.json({error:"Verified identity required"},{status:401,headers:h});
+      if (!env.MEMORY_KV) return Response.json({error:"Memory unavailable"},{status:503,headers:h});
+      let input;
+      try { const raw=await request.text(); if(raw.length>4096) return Response.json({error:"Request too large"},{status:413,headers:h}); input=JSON.parse(raw); } catch { return Response.json({error:"Invalid JSON"},{status:400,headers:h}); }
+      if (!input || typeof input!=="object" || Array.isArray(input) || !["read","save","delete"].includes(input.action) || (input.action!=="delete" && input.consent!==true)) return Response.json({error:"Invalid action or consent"},{status:400,headers:h});
+      try { return Response.json(await preferenceMemory(env,uid,input),{headers:h}); } catch { return Response.json({error:"Memory request failed"},{status:503,headers:h}); }
     }
     const knowledgeResponse = await handleKnowledge(request, env, headers, url);
     if (knowledgeResponse) return knowledgeResponse;
