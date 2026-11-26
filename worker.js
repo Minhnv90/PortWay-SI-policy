@@ -479,6 +479,22 @@ export default {
     if (!headers) return new Response("Origin not allowed", { status: 403 });
     if (request.method === "OPTIONS") return new Response(null, { status: 204, headers });
     if (request.method === "GET" && url.pathname === "/api/port-weather") return handlePortWeather(url, headers, ctx);
+    if (request.method === "GET" && url.pathname === "/api/diagnostics/storage") {
+      const checks = {d1:"missing",kv:"missing"};
+      let ragEligible = null;
+      if (env.KNOWLEDGE_DB) {
+        try {
+          const row = await env.KNOWLEDGE_DB.prepare("SELECT COUNT(*) AS total FROM portway_knowledge WHERE approval_status = 'approved' AND source_url LIKE 'https://%' AND trim(body) <> ''").first();
+          ragEligible = Number(row.total);
+          checks.d1 = Number.isSafeInteger(ragEligible) && ragEligible >= 0 ? "ok" : "failed";
+        } catch { checks.d1 = "failed"; }
+      }
+      if (env.MEMORY_KV) {
+        try { await env.MEMORY_KV.get("__diagnostics_read_only__"); checks.kv = "read_ok"; } catch { checks.kv = "failed"; }
+      }
+      const ok = checks.d1 === "ok" && checks.kv === "read_ok";
+      return Response.json({ok,checks,rag_eligible:ragEligible,kv_write_tested:false,ai_tested:false},{status:ok?200:503,headers:{...headers,"Cache-Control":"no-store"}});
+    }
     const knowledgeResponse = await handleKnowledge(request, env, headers, url);
     if (knowledgeResponse) return knowledgeResponse;
     if (url.pathname === "/api/pi/verify" && request.method === "POST") {
