@@ -156,10 +156,12 @@ function createAuth(): AuthSession {
     if (user) return Promise.resolve(user);
     if (inflight) return inflight;
 
-    inflight = authenticate().finally(() => {
-      inflight = null;
+    const attempt = generation;
+    const pending = authenticate().finally(() => {
+      if (attempt === generation && inflight === pending) inflight = null;
     });
-    return inflight;
+    inflight = pending;
+    return pending;
   }
 
   function headers(): Record<string, string> {
