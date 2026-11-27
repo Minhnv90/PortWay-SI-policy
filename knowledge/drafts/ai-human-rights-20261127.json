@@ -1,0 +1,26 @@
+{
+  "title": "AI and human rights",
+  "source": "User-provided Vietnamese excerpt attributed to UNESCO",
+  "source_url": null,
+  "source_verification": "pending: truncated article URL",
+  "approval_status": "draft",
+  "rag_enabled": false,
+  "summary": "AI can advance inclusion and innovation but poses risks to equality, freedom of expression and human dignity. Technology should serve people.",
+  "proposed_application": [
+    "Human oversight",
+    "Privacy and consent",
+    "Non-discrimination",
+    "Accessible responses",
+    "Freedom of thought and expression",
+    "Transparent limitations",
+    "Correction and accountability"
+  ],
+  "proposed_acceptance_tests": [
+    "Reject discriminatory assumptions",
+    "Do not disclose private information",
+    "Explain uncertainty and allow correction",
+    "Preserve user decision-making",
+    "Use accessible language"
+  ],
+  "test_status": "not_run"
+}
