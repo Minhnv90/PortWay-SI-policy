@@ -33,3 +33,6 @@ test('MCP route authenticates, filters records and rejects mutation',async()=>{
  const result=await (await call('tools/call',{name:'search_knowledge',arguments:{query:'logistics'}})).json();
  const records=JSON.parse(result.result.content[0].text).records;assert.equal(records.length,1);assert.equal(records[0].title,'Approved');assert.equal(reads,1);
 });
+
+import { reviewDueKnowledge } from '../modules/knowledge-cron.mjs';
+test('Cron review is bounded and read only',async()=>{let sql;const e={KNOWLEDGE_DB:{prepare:s=>{sql=s;return {all:async()=>({results:[{id:'synthetic'}]})}}}};assert.deepEqual(await reviewDueKnowledge(e),{due:1});assert.match(sql,/^SELECT /);assert.match(sql,/LIMIT 20/);assert.match(sql,/review_due_at/);await assert.rejects(reviewDueKnowledge({}));await assert.rejects(reviewDueKnowledge({KNOWLEDGE_DB:{prepare:()=>{throw Error('offline')}}}));let pending;await worker.scheduled({},e,{waitUntil:p=>{pending=p}});await pending;});

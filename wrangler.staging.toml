@@ -14,3 +14,6 @@ database_id = "63a484b4-ab0f-4f9f-a299-78fca28f6755"
 [[kv_namespaces]]
 binding = "MEMORY_KV"
 id = "6b09f0ac73b5454b8940b0b11ec5603f"
+
+[triggers]
+crons = ["0 */6 * * *"]
