@@ -1,0 +1,19 @@
+{
+  "title": "DEX, utility, monetary rules and real economy",
+  "source": "User-provided economic framework",
+  "approval_status": "draft",
+  "rag_enabled": false,
+  "principles": [
+    "DEX provides trading and liquidity infrastructure",
+    "Real utility supports economic demand",
+    "Consistent monetary rules can support stability",
+    "Real economic activity underpins sustainable value"
+  ],
+  "limitations": [
+    "Liquidity alone does not establish economic value",
+    "No guarantee of token price stability",
+    "No claim of verified Pi Network implementation"
+  ],
+  "source_verification": "pending",
+  "test_status": "not_run"
+}
