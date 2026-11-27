@@ -1,3 +1,4 @@
+import { reviewDueKnowledge } from "./modules/knowledge-cron.mjs";
 import { preferenceMemory, verifiedUid, memoryContext } from "./modules/memory.mjs";
 const localPortWayKnowledge = [
   {
@@ -471,6 +472,9 @@ async function handleKnowledge(request, env, headers, url) {
 }
 
 export default {
+  async scheduled(controller, env, ctx) {
+    ctx.waitUntil(reviewDueKnowledge(env).then(result => console.log("Knowledge review due count:", result.due)));
+  },
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
     if (request.method === "GET" && (url.pathname === "/" || url.pathname === "/api/status")) {
