@@ -479,7 +479,7 @@ export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
     if (request.method === "GET" && (url.pathname === "/" || url.pathname === "/api/status")) {
-      return Response.json({ service: "PortWay SI", status: "online", release: "business-weather-knowledge-v4", ai_configured: Boolean(typeof env.AI?.run === "function" && env.AI_MODEL), missing_config: [typeof env.AI?.run === "function" ? null : "AI", env.AI_MODEL ? null : "AI_MODEL"].filter(Boolean), note: "Status only; AI response is not tested." }, { headers: { "Cache-Control": "no-store", "Access-Control-Allow-Origin": "*" } });
+      return Response.json({ service: "PortWay SI", status: "online", build_marker: "si-cron-mcp-diagnostics-20261127-v1", release: "business-weather-knowledge-v4", ai_configured: Boolean(typeof env.AI?.run === "function" && env.AI_MODEL), missing_config: [typeof env.AI?.run === "function" ? null : "AI", env.AI_MODEL ? null : "AI_MODEL"].filter(Boolean), note: "Status only; AI response is not tested." }, { headers: { "Cache-Control": "no-store", "Access-Control-Allow-Origin": "*" } });
     }
     const headers = cors(request, env);
     if (!headers) return new Response("Origin not allowed", { status: 403 });
@@ -525,12 +525,12 @@ export default {
       if (!authorization.startsWith("Bearer ") || authorization.length < 20) return Response.json({ error: "Pi access token is required." }, { status: 401, headers });
       try {
         const piResponse = await fetch("https://api.minepi.com/v2/me", { headers: { "Authorization": authorization, "Accept": "application/json" }, signal: AbortSignal.timeout(10000), redirect: "error" });
-        if (!piResponse.ok) return Response.json({ error: "Pi authentication could not be verified." }, { status: 401, headers });
+        if (!piResponse.ok) return Response.json({ error: "Pi authentication could not be verified.", code: "PI_AUTH_REJECTED" }, { status: 401, headers });
         const payload = await piResponse.json();
         const user = payload?.user || payload;
-        if (typeof user?.uid !== "string" || !user.uid) return Response.json({ error: "Pi returned an invalid identity response." }, { status: 502, headers });
+        if (typeof user?.uid !== "string" || !user.uid) return Response.json({ error: "Pi returned an invalid identity response.", code: "PI_INVALID_IDENTITY" }, { status: 502, headers });
         return Response.json({ verified: true, user: { uid: user.uid, username: String(user.username || "") } }, { headers });
-      } catch { return Response.json({ error: "Could not reach Pi Platform API." }, { status: 502, headers }); }
+      } catch { return Response.json({ error: "Could not reach Pi Platform API.", code: "PI_UPSTREAM_UNAVAILABLE" }, { status: 502, headers }); }
     }
     if (url.pathname !== "/api/research-assist" || request.method !== "POST") {
       return Response.json({ error: "Not found" }, { status: 404, headers });
