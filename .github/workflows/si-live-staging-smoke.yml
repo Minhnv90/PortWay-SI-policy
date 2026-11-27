@@ -1,0 +1,31 @@
+name: SI live staging smoke
+on:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Live API probes (no deployment)
+        shell: bash
+        run: |
+          base=https://portway-si-staging.nguyenminh2290.workers.dev
+          origin=https://portway-si-frontend-staging.nguyenminh2290.workers.dev
+          probe() {
+            name="$1"; shift
+            code=$(curl -sS --max-time 40 -o /tmp/si-body -w '%{http_code}' "$@") || code=network_error
+            echo "$name: $code"
+            if [ "$name" = storage ] || [ "$name" = status ]; then head -c 1500 /tmp/si-body || true; echo; fi
+            echo "$name: $code" >> "$GITHUB_STEP_SUMMARY"
+          }
+          probe status "$base/api/status"
+          probe storage -H "Origin: $origin" "$base/api/diagnostics/storage"
+          probe cors_allowed -X OPTIONS -H "Origin: $origin" -H 'Access-Control-Request-Method: POST' -H 'Access-Control-Request-Headers: content-type,authorization' "$base/api/research-assist"
+          probe cors_denied -X OPTIONS -H 'Origin: https://invalid.example' -H 'Access-Control-Request-Method: POST' "$base/api/research-assist"
+          probe pi_missing -X POST -H "Origin: $origin" -H 'Content-Type: application/json' -d '{}' "$base/api/pi/verify"
+          probe pi_invalid -X POST -H "Origin: $origin" -H 'Content-Type: application/json' -H 'Authorization: Bearer invalid-test-token-not-real' -d '{}' "$base/api/pi/verify"
+          probe ai -X POST -H "Origin: $origin" -H 'Content-Type: application/json' -d '{"question":"What is 2+2?","consent":true,"useMemory":false,"store":false}' "$base/api/research-assist"
+          echo 'HTTP observations only; no acceptance assertion.' >> "$GITHUB_STEP_SUMMARY"
