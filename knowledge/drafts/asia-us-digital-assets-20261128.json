@@ -1,0 +1,78 @@
+{
+  "id": "asia-us-digital-assets-20261128",
+  "reviewed_at": "2026-11-28",
+  "approval_status": "needs_review",
+  "rag_enabled": false,
+  "language": "vi",
+  "sources": [
+    "https://www.oecd.org/en/publications/asia-capital-markets-report-2026_08f87bed-en/full-report/developments-in-crypto-asset-markets_193a8553.html",
+    "https://www.oecd.org/en/publications/asia-capital-markets-report-2026_08f87bed-en/full-report/methodology-for-data-collection-and-classification_8d67a868.html",
+    "https://www.reuters.com/legal/government/us-senate-vote-advancing-landmark-crypto-bill-2026-09-15/",
+    "https://www.everycrsreport.com/files/2026-09-15_IF13313_244ddb7aea18c9000074e0be4d418d15c846d2ef.pdf",
+    "https://crypency.com/regulation/asia"
+  ],
+  "records": [
+    {
+      "jurisdiction": "VN",
+      "review": "DTI law effective 2026-01-01; exchange licence count unverified"
+    },
+    {
+      "jurisdiction": "JP",
+      "review": "Securities-law transition reported enacted; tax and bank stablecoin timetable pending primary sources"
+    },
+    {
+      "jurisdiction": "KR",
+      "review": "Digital asset basic legislation proposed; tokenized securities dates pending"
+    },
+    {
+      "jurisdiction": "CN",
+      "review": "Private crypto restrictions remain; e-CNY interest and ID rules pending"
+    },
+    {
+      "jurisdiction": "HK",
+      "review": "Stablecoin licensing framework in force; specific issuers and PayMe rollout pending"
+    },
+    {
+      "jurisdiction": "SG",
+      "review": "Project Guardian tokenisation trials confirmed; BLOOM and bond amount pending"
+    },
+    {
+      "jurisdiction": "PK",
+      "review": "Virtual assets framework confirmed; 2026 parliamentary and licensing dates pending"
+    },
+    {
+      "jurisdiction": "TW",
+      "review": "Virtual Asset Services Act reported promulgated; effective date pending"
+    },
+    {
+      "jurisdiction": "MY",
+      "review": "ETF guidelines revised March 2026; launch date pending"
+    },
+    {
+      "jurisdiction": "TH",
+      "review": "Digital asset regulatory developments confirmed; ETF date pending"
+    },
+    {
+      "jurisdiction": "ID",
+      "review": "OJK supervision and derivatives rules confirmed; legislative amendment pending"
+    },
+    {
+      "jurisdiction": "AE",
+      "review": "Payment token framework reported in force; specific issuers pending"
+    },
+    {
+      "jurisdiction": "KZ",
+      "review": "Reserve amount unverified"
+    },
+    {
+      "jurisdiction": "ASEAN+3",
+      "review": "Joint statement pending"
+    },
+    {
+      "jurisdiction": "US",
+      "review": "Reuters reports Sept 15 cloture failed 50-49, threshold 60; CRS describes proposal, not law"
+    }
+  ],
+  "review_due_at": "2026-12-05",
+  "notes": "Preliminary source review; verify against primary regulators before individual approval. No implication of payment legality, token approval or price."
+}
