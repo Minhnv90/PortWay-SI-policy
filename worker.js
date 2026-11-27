@@ -407,7 +407,7 @@ const cors = (request, env) => {
   if (!origin || !allowed.includes(origin)) return null;
   return {
     "Access-Control-Allow-Origin": origin,
-    "Access-Control-Allow-Methods": "POST, OPTIONS",
+    "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
     "Access-Control-Allow-Headers": "Content-Type, Authorization",
     "Access-Control-Max-Age": "86400",
     "Vary": "Origin"
@@ -481,6 +481,7 @@ export default {
     if (request.method === "OPTIONS") return new Response(null, { status: 204, headers });
     if (request.method === "GET" && url.pathname === "/api/port-weather") return handlePortWeather(url, headers, ctx);
     if (request.method === "GET" && url.pathname === "/api/diagnostics/storage") {
+      if (!env.MCP_READ_TOKEN || request.headers.get("Authorization") !== "Bearer " + env.MCP_READ_TOKEN) return Response.json({error:"Authentication required"},{status:401,headers:{...headers,"Cache-Control":"no-store"}});
       const checks = {d1:"missing",kv:"missing"};
       let ragEligible = null;
       if (env.KNOWLEDGE_DB) {
