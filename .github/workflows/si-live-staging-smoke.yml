@@ -28,4 +28,8 @@ jobs:
           probe pi_missing -X POST -H "Origin: $origin" -H 'Content-Type: application/json' -d '{}' "$base/api/pi/verify"
           probe pi_invalid -X POST -H "Origin: $origin" -H 'Content-Type: application/json' -H 'Authorization: Bearer invalid-test-token-not-real' -d '{}' "$base/api/pi/verify"
           probe ai -X POST -H "Origin: $origin" -H 'Content-Type: application/json' -d '{"question":"What is 2+2?","consent":true,"useMemory":false,"store":false}' "$base/api/research-assist"
-          echo 'HTTP observations only; no acceptance assertion.' >> "$GITHUB_STEP_SUMMARY"
+          if [ "$code" != 200 ]; then echo 'AI HTTP acceptance failed'; exit 1; fi
+          if ! jq -e '(.answer // .response // "") | type == "string" and (length > 0)' /tmp/si-body >/dev/null; then
+            echo 'AI answer missing or invalid'; exit 1
+          fi
+          echo 'AI HTTP and nonempty JSON answer: PASS; semantic correctness, storage and Pi login remain unverified.' >> "$GITHUB_STEP_SUMMARY"
