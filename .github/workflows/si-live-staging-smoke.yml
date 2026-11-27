@@ -1,6 +1,8 @@
 name: SI live staging smoke
 on:
-  pull_request:
+  push:
+    branches:
+      - staging/si-handover
   workflow_dispatch:
 permissions:
   contents: read
