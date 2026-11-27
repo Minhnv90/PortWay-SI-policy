@@ -20,3 +20,16 @@ test("PORTWAY memory isolation consent TTL and outage",async()=>{const data=new 
 test("Chat only receives consented verified preferences",async()=>{const original=globalThis.fetch;let identityCalls=0,reads=0,prompt="";try{globalThis.fetch=async()=>{identityCalls++;return Response.json({uid:"test-user"});};const e={...env,MEMORY_KV:{get:async k=>{reads++;assert.equal(k,"portway:preferences:v1:test-user");return {language:"en"};}},AI:{run:async(m,p)=>{prompt=p.messages[0].content;return {response:"OK"};}}};const chat=async(consent,token=true)=>worker.fetch(req("/api/research-assist",JSON.stringify({question:"Logistics",memoryConsent:consent}),token?{Authorization:"Bearer synthetic-token-long-enough"}:{}),e,{});assert.equal((await chat(false)).status,200);assert.equal(identityCalls,0);assert.equal(reads,0);assert.doesNotMatch(prompt,/"language":"en"/);assert.equal((await chat(true,false)).status,200);assert.equal(reads,0);assert.equal((await chat(true)).status,200);assert.equal(reads,1);assert.match(prompt,/"language":"en"/);globalThis.fetch=async()=>new Response("",{status:401});assert.equal((await chat(true)).status,200);assert.equal(reads,1);assert.doesNotMatch(prompt,/"language":"en"/);}finally{globalThis.fetch=original;}});
 
 test('GET diagnostics preflight permits authorization',async()=>{const r=await worker.fetch(new Request('https://worker.example/api/diagnostics/storage',{method:'OPTIONS',headers:{Origin:'https://example.com','Access-Control-Request-Method':'GET','Access-Control-Request-Headers':'authorization'}}),env,{});assert.equal(r.status,204);assert.match(r.headers.get('Access-Control-Allow-Methods'),/GET/);assert.match(r.headers.get('Access-Control-Allow-Headers'),/Authorization/i);});
+
+test('MCP route authenticates, filters records and rejects mutation',async()=>{
+ const token='synthetic-mcp-token'; let reads=0;
+ const e={...env,MCP_READ_TOKEN:token,KNOWLEDGE_DB:{prepare:()=>{reads++;return {bind:()=>({all:async()=>({results:[{title:'Approved',approval_status:'approved',source_url:'https://example.com/source'},{title:'Draft',approval_status:'draft',source_url:'https://example.com/draft'},{title:'Unsafe',approval_status:'approved',source_url:'http://example.com'}]})})}}}};
+ const call=(method,params={},auth=token,origin='https://example.com')=>worker.fetch(req('/api/mcp',JSON.stringify({jsonrpc:'2.0',id:1,method,params}),{Authorization:'Bearer '+auth,Origin:origin}),e,{});
+ assert.equal((await call('tools/list',{},'wrong')).status,401);
+ assert.equal((await call('tools/list',{},token,'https://evil.example')).status,403);
+ const list=await (await call('tools/list')).json();assert.equal(list.result.tools.length,1);assert.equal(list.result.tools[0].annotations.readOnlyHint,true);
+ assert.equal((await (await call('tools/call',{name:'delete',arguments:{query:'logistics'}})).json()).error.code,-32602);
+ assert.equal(reads,0);
+ const result=await (await call('tools/call',{name:'search_knowledge',arguments:{query:'logistics'}})).json();
+ const records=JSON.parse(result.result.content[0].text).records;assert.equal(records.length,1);assert.equal(records[0].title,'Approved');assert.equal(reads,1);
+});

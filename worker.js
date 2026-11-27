@@ -1,3 +1,4 @@
+import { knowledgeMcp } from "./modules/knowledge-mcp.mjs";
 import { preferenceMemory, verifiedUid, memoryContext } from "./modules/memory.mjs";
 const localPortWayKnowledge = [
   {
@@ -506,6 +507,12 @@ export default {
       try { const raw=await request.text(); if(raw.length>4096) return Response.json({error:"Request too large"},{status:413,headers:h}); input=JSON.parse(raw); } catch { return Response.json({error:"Invalid JSON"},{status:400,headers:h}); }
       if (!input || typeof input!=="object" || Array.isArray(input) || !["read","save","delete"].includes(input.action) || (input.action!=="delete" && input.consent!==true)) return Response.json({error:"Invalid action or consent"},{status:400,headers:h});
       try { return Response.json(await preferenceMemory(env,uid,input),{headers:h}); } catch { return Response.json({error:"Memory request failed"},{status:503,headers:h}); }
+    }
+    if (url.pathname === "/api/mcp") {
+      const response = await knowledgeMcp(request, env, searchKnowledge);
+      const h = new Headers(response.headers);
+      for (const [key,value] of Object.entries(headers)) h.set(key,value);
+      return new Response(response.body,{status:response.status,headers:h});
     }
     const knowledgeResponse = await handleKnowledge(request, env, headers, url);
     if (knowledgeResponse) return knowledgeResponse;
