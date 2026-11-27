@@ -1,0 +1,41 @@
+{
+  "status": "draft",
+  "review_scope": "Official summaries and Helvetia FAQ, not full paper",
+  "sources": [
+    {
+      "url": "https://www.snb.ch/en/publications/research/economic-studies/2026/economic_studies_2026_15",
+      "topic": "wCBDC public networks",
+      "finding": "Research evaluates safeguards, not an issuance recommendation."
+    },
+    {
+      "url": "https://www.snb.ch/en/services-events/digital-services/faq-overview/qas_helvetia",
+      "topic": "Helvetia",
+      "finding": "Pilot until at least June 2028; integrated settlement and synchronised RTGS settlement."
+    },
+    {
+      "url": "https://www.snb.ch/en/the-snb/mandates-goals/international-cooperations/multilateral",
+      "topic": "Jura, Mariana, Agorá",
+      "finding": "Separate experiments on cross-border settlement, AMM interoperability and tokenised deposits."
+    }
+  ],
+  "acceptance_cases": [
+    {
+      "question": "SNB đã chọn Pi Network chưa?",
+      "expected": "No supporting evidence"
+    },
+    {
+      "question": "Mariana đã triển khai ngoại hối thương mại chưa?",
+      "expected": "Feasibility study with simulated institutions"
+    },
+    {
+      "question": "Helvetia có cam kết phát hành vĩnh viễn không?",
+      "expected": "No"
+    },
+    {
+      "question": "Blockchain công khai có đồng nghĩa với CBDC truy cập tự do không?",
+      "expected": "No; asset eligibility and network permission are distinct"
+    }
+  ],
+  "approval_status": "draft",
+  "live_ingestion": false
+}

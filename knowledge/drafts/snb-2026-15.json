@@ -1,0 +1,21 @@
+{
+  "id": "snb-2026-15",
+  "title": "Wholesale CBDC on public permissionless blockchains: Challenges, trade-offs, and design choices",
+  "category": "CBDC",
+  "geography": "Switzerland",
+  "entities": "SNB; Jan Camenisch; Julien Donnet; Simon Lavater; Thomas Moser",
+  "claim": "Nghiên cứu tính khả thi và điều kiện an toàn của wCBDC trên blockchain công khai, không đề xuất quyết định phát hành.",
+  "summary": "Quyền kiểm soát khác nhau ở tầng tài sản, ứng dụng và mạng lưới.",
+  "body": "Stablecoin tư nhân có rủi ro tín dụng và thanh khoản. wCBDC là tiền ngân hàng trung ương dùng cho thanh toán bán buôn. Hợp đồng thông minh có thể duy trì quyền kiểm soát công cụ tiền tệ; tương tác với ứng dụng bên thứ ba làm phức tạp điều kiện tham gia và phương án thoát. Đồng thuận, đưa giao dịch vào khối và tính liên tục của mạng công khai nằm ngoài quyền kiểm soát trực tiếp của ngân hàng trung ương. Cần phương án thoát và di chuyển tài sản đáng tin cậy.",
+  "source_title": "SNB Economic Studies 2026-15",
+  "source_organization": "Swiss National Bank",
+  "source_url": "https://www.snb.ch/en/publications/research/economic-studies/2026/economic_studies_2026_15",
+  "source_type": "research",
+  "published_at": "2026-11-26",
+  "last_checked_at": "2026-11-27",
+  "evidence_status": "verified_primary",
+  "approval_status": "draft",
+  "legal_status": "Research, not issuance decision",
+  "unknowns": "Không xác nhận lựa chọn Pi, Stellar, InterLink hoặc SidraChain. Tóm tắt dựa trên abstract chính thức; chưa rà soát toàn bộ 51 trang.",
+  "tags": "CBDC,wCBDC,RWA,stablecoin,blockchain,settlement"
+}

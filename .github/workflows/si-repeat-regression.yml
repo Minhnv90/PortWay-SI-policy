@@ -1,0 +1,30 @@
+name: SI 100 repeat regression
+on:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  repeat:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Repeat offline regression 100 times
+        shell: bash
+        run: |
+          failures=0
+          for i in $(seq 1 100); do
+            if node --experimental-default-type=module --test tests/si-security-review.test.mjs > /tmp/si-test.log 2>&1; then
+              echo "PASS $i/100"
+            else
+              echo "FAIL $i/100"
+              cat /tmp/si-test.log
+              failures=$((failures+1))
+            fi
+          done
+          echo "Passed: $((100-failures))/100" >> "$GITHUB_STEP_SUMMARY"
+          test "$failures" -eq 0

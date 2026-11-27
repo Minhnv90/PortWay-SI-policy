@@ -1,0 +1,26 @@
+name: SI handover package
+on:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Package tracked frontend source only
+        run: |
+          git archive --format=zip --output=PORTWAY-SI-review.zip HEAD:frontend
+          sha256sum PORTWAY-SI-review.zip > SHA256SUMS.txt
+          unzip -t PORTWAY-SI-review.zip
+          git rev-parse HEAD > COMMIT.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: PORTWAY-SI-review-handover
+          path: |
+            PORTWAY-SI-review.zip
+            SHA256SUMS.txt
+            COMMIT.txt

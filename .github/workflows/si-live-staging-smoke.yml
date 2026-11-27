@@ -1,0 +1,46 @@
+name: SI live staging smoke
+on:
+  push:
+    branches:
+      - staging/si-handover
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Live API probes (no deployment)
+        shell: bash
+        run: |
+          base=https://portway-si-staging.nguyenminh2290.workers.dev
+          origin=https://portway-si-frontend-staging.nguyenminh2290.workers.dev
+          probe() {
+            name="$1"; shift
+            code=$(curl -sS --max-time 40 -o /tmp/si-body -w '%{http_code}' "$@") || code=network_error
+            echo "$name: $code"
+            if [ "$name" = storage ] || [ "$name" = status ]; then head -c 1500 /tmp/si-body || true; echo; fi
+            echo "$name: $code" >> "$GITHUB_STEP_SUMMARY"
+          }
+          probe status "$base/api/status"
+          probe storage -H "Origin: $origin" "$base/api/diagnostics/storage"
+          probe cors_allowed -X OPTIONS -H "Origin: $origin" -H 'Access-Control-Request-Method: POST' -H 'Access-Control-Request-Headers: content-type,authorization' "$base/api/research-assist"
+          probe cors_denied -X OPTIONS -H 'Origin: https://invalid.example' -H 'Access-Control-Request-Method: POST' "$base/api/research-assist"
+          probe pi_missing -X POST -H "Origin: $origin" -H 'Content-Type: application/json' -d '{}' "$base/api/pi/verify"
+          probe pi_invalid -X POST -H "Origin: $origin" -H 'Content-Type: application/json' -H 'Authorization: Bearer invalid-test-token-not-real' -d '{}' "$base/api/pi/verify"
+          probe ai -X POST -H "Origin: $origin" -H 'Content-Type: application/json' -d '{"question":"For a synthetic API test, answer only the number: 2+2 = ?","consent":true,"useMemory":false,"store":false}' "$base/api/research-assist"
+          if [ "$code" != 200 ]; then echo 'AI HTTP acceptance failed'; exit 1; fi
+          if ! jq -e '(.answer // .response // "") | type == "string" and (length > 0)' /tmp/si-body >/dev/null; then
+            echo 'AI answer missing or invalid'; exit 1
+          fi
+          if ! jq -e '(.answer // .response // "") | test("(^|[^0-9])4([^0-9]|$)")' /tmp/si-body >/dev/null; then
+            echo 'Synthetic arithmetic answer check failed'; exit 1
+          fi
+          echo 'AI HTTP, JSON answer and basic arithmetic check: PASS; broader semantic correctness, storage and Pi login remain unverified.' >> "$GITHUB_STEP_SUMMARY"
+          probe rag -X POST -H "Origin: $origin" -H 'Content-Type: application/json' -d '{"query":"logistics"}' "$base/api/knowledge/search"
+          if [ "$code" != 200 ]; then echo 'RAG endpoint acceptance failed'; exit 1; fi
+          jq -e '(.records | type == "array") and (.records | all(.approval_status == "approved" and (.source_url | startswith("https://"))))' /tmp/si-body >/dev/null
+          jq -r '"RAG returned records: " + (.records | length | tostring)' /tmp/si-body >> "$GITHUB_STEP_SUMMARY"
+          probe memory_unauthenticated -X POST -H "Origin: $origin" -H 'Content-Type: application/json' -d '{"action":"read","consent":true}' "$base/api/memory"
+          if [ "$code" != 401 ]; then echo 'Memory unauthorized access check failed'; exit 1; fi

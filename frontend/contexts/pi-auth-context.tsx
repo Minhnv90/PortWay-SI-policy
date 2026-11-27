@@ -5,6 +5,7 @@ import React, {
   useContext,
   useState,
   useEffect,
+  useRef,
   type ReactNode,
 } from "react";
 import { PI_NETWORK_CONFIG } from "@/lib/system-config";
@@ -115,7 +116,10 @@ export function PiAuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const busy = useRef(false);
   const initialize = async () => {
+    if (busy.current) return;
+    busy.current = true;
     // Every attempt starts from a clean Pi session, so a retry re-authenticates instead of
     // reusing a user cached by an earlier, partially failed attempt.
     setIsAuthenticated(false);
@@ -163,8 +167,10 @@ export function PiAuthProvider({ children }: { children: ReactNode }) {
       console.error("Pi authentication failed");
       setHasError(true);
       setAuthMessage(
-        previous => `${previous} Failed. Please retry.`,
+        previous => { const message = err instanceof Error ? err.message : ""; const safe = /^(Pi verification HTTP [1-5][0-9]{2}|Pi backend login timed out|Pi SDK load timed out|Pi SDK init timed out|Invalid verified identity|Missing Pi access token)$/.test(message) ? message : "Check Pi SDK, app domain or network"; return `${previous} Failed. ${safe}. Please retry.`; },
       );
+    } finally {
+      busy.current = false;
     }
   };
 

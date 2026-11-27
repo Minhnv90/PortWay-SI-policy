@@ -1,0 +1,20 @@
+{
+  "title": "Open Internet architecture design lessons",
+  "source": "User-provided discussion of Clean Slate, POMI 2020, Stanford and Pi Network",
+  "source_verification": "pending",
+  "approval_status": "draft",
+  "rag_enabled": false,
+  "design_principles": [
+    "Open modular architecture",
+    "Distributed task execution",
+    "Mobile-first accessibility",
+    "Consent and privacy",
+    "API interoperability",
+    "Human agency"
+  ],
+  "limitations": [
+    "No verified institutional succession or brand color origin",
+    "Design principles are interpretations, not historical proof"
+  ],
+  "acceptance_status": "not_run"
+}
