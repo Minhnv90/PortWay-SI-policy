@@ -27,9 +27,12 @@ jobs:
           probe cors_denied -X OPTIONS -H 'Origin: https://invalid.example' -H 'Access-Control-Request-Method: POST' "$base/api/research-assist"
           probe pi_missing -X POST -H "Origin: $origin" -H 'Content-Type: application/json' -d '{}' "$base/api/pi/verify"
           probe pi_invalid -X POST -H "Origin: $origin" -H 'Content-Type: application/json' -H 'Authorization: Bearer invalid-test-token-not-real' -d '{}' "$base/api/pi/verify"
-          probe ai -X POST -H "Origin: $origin" -H 'Content-Type: application/json' -d '{"question":"What is 2+2?","consent":true,"useMemory":false,"store":false}' "$base/api/research-assist"
+          probe ai -X POST -H "Origin: $origin" -H 'Content-Type: application/json' -d '{"question":"For a synthetic API test, answer only the number: 2+2 = ?","consent":true,"useMemory":false,"store":false}' "$base/api/research-assist"
           if [ "$code" != 200 ]; then echo 'AI HTTP acceptance failed'; exit 1; fi
           if ! jq -e '(.answer // .response // "") | type == "string" and (length > 0)' /tmp/si-body >/dev/null; then
             echo 'AI answer missing or invalid'; exit 1
           fi
-          echo 'AI HTTP and nonempty JSON answer: PASS; semantic correctness, storage and Pi login remain unverified.' >> "$GITHUB_STEP_SUMMARY"
+          if ! jq -e '(.answer // .response // "") | test("(^|[^0-9])4([^0-9]|$)")' /tmp/si-body >/dev/null; then
+            echo 'Synthetic arithmetic answer check failed'; exit 1
+          fi
+          echo 'AI HTTP, JSON answer and basic arithmetic check: PASS; broader semantic correctness, storage and Pi login remain unverified.' >> "$GITHUB_STEP_SUMMARY"
