@@ -36,3 +36,9 @@ jobs:
             echo 'Synthetic arithmetic answer check failed'; exit 1
           fi
           echo 'AI HTTP, JSON answer and basic arithmetic check: PASS; broader semantic correctness, storage and Pi login remain unverified.' >> "$GITHUB_STEP_SUMMARY"
+          probe rag -X POST -H "Origin: $origin" -H 'Content-Type: application/json' -d '{"query":"logistics"}' "$base/api/knowledge/search"
+          if [ "$code" != 200 ]; then echo 'RAG endpoint acceptance failed'; exit 1; fi
+          jq -e '(.records | type == "array") and (.records | all(.approval_status == "approved" and (.source_url | startswith("https://"))))' /tmp/si-body >/dev/null
+          jq -r '"RAG returned records: " + (.records | length | tostring)' /tmp/si-body >> "$GITHUB_STEP_SUMMARY"
+          probe memory_unauthenticated -X POST -H "Origin: $origin" -H 'Content-Type: application/json' -d '{"action":"read","consent":true}' "$base/api/memory"
+          if [ "$code" != 401 ]; then echo 'Memory unauthorized access check failed'; exit 1; fi
