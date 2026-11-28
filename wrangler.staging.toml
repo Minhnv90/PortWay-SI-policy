@@ -2,7 +2,7 @@ name = "portway-si-staging"
 main = "worker.js"
 compatibility_date = "2026-11-21"
 [vars]
-ALLOWED_ORIGINS = "http://localhost:8788,http://localhost:3000,https://portway-si-frontend-staging.nguyenminh2290.workers.dev"
+ALLOWED_ORIGINS = "http://localhost:8788,http://localhost:3000,https://portway-si-frontend-staging.nguyenminh2290.workers.dev,https://portwaysix5564.pinet.com"
 AI_MODEL = "@cf/google/gemma-4-26b-a4b-it"
 [ai]
 binding = "AI"
